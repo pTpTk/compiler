@@ -5,7 +5,7 @@
 #include <string>
 #include <cassert>
 
-#include "types.h"
+#include "token.h"
 
 class Lexer
 {
