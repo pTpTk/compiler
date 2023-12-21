@@ -24,19 +24,23 @@ void Lexer::run(char* filename) {
                     ++token;
                     break;
                 // symbols
-                case '{': case '}': 
-                case '(': case ')':
-                case ';': case '=':
-                {
-                    tokens.emplace_back(Type::symbol, *token);
-                    ++token;
-                    break;
-                }
+                case '{':
+                    PUSH_TOKEN(Type::symbol_brace_l);
+                case '}': 
+                    PUSH_TOKEN(Type::symbol_brace_r);
+                case '(':
+                    PUSH_TOKEN(Type::symbol_parenthesis_l);
+                case ')':
+                    PUSH_TOKEN(Type::symbol_parenthesis_r);
+                case ';':
+                    PUSH_TOKEN(Type::symbol_semicolon);
+                case '=':
+                    PUSH_TOKEN(Type::symbol_equal);
                 case 'i':
                 {
                     // int
                     if (len == 4 && strcmp("int ", line) == 0) {
-                        tokens.emplace_back(Type::keyword, (int)(Keyword::INT));
+                        tokens.emplace_back(Type::keyword_int, (int)(Keyword::INT));
                         token += 3;
                     }
                     // identifier
@@ -56,7 +60,7 @@ void Lexer::run(char* filename) {
                 {
                     // return
                     if (len == 7 && strcmp("return ", line) == 0) {
-                        tokens.emplace_back(Type::keyword, (int)Keyword::RETURN);
+                        tokens.emplace_back(Type::keyword_return, (int)Keyword::RETURN);
                         token += 6;
                     }
                     // identifier

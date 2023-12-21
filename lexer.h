@@ -5,8 +5,13 @@
 #include <string>
 #include <cassert>
 
-#include "types.h"
+#include "token.h"
 
+#define PUSH_TOKEN(TYPE) { \
+tokens.emplace_back(TYPE); \
+++token; \
+break; \
+}
 class Lexer
 {
   private:
