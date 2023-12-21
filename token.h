@@ -33,16 +33,11 @@ class Token
     Type type;
     long val;
 
-<<<<<<< HEAD
     Token(Type _type, long _val = 0): type(_type), val(_val) {}
-=======
-    Token(Type _type, long _val): type(_type), val(_val) {}
->>>>>>> parser
     
     void print()
     {
         switch(type) {
-<<<<<<< HEAD
             case Type::symbol_brace_l:
                 printf("{");
                 break;
@@ -73,24 +68,6 @@ class Token
             case Type::keyword_return:
                 printf("return");
                 break;
-=======
-            case Type::symbol:
-                printf("%c", (char)val);
-                break;
-            case Type::keyword:
-            {
-                Keyword key = (Keyword)val;
-                switch(key) {
-                    case Keyword::INT:
-                        printf("int");
-                        break;
-                    case Keyword::RETURN:
-                        printf("return");
-                        break;
-                }
-                break;
-            }
->>>>>>> parser
             case Type::identifier:
             {
                 std::string* strPtr = (std::string*)val;
