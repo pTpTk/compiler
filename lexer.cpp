@@ -117,4 +117,7 @@ void Lexer::run(char* filename) {
             }
         }
     }
+
+    free(line);
+    fclose(fd);
 }
