@@ -36,7 +36,7 @@ void Lexer::run(char* filename) {
                 {
                     // int
                     if (len == 4 && strcmp("int ", line) == 0) {
-                        tokens.emplace_back(Type::keyword, (int)(Keyword::INT));
+                        tokens.emplace_back(Type::keyword_int);
                         token += 3;
                     }
                     // identifier
@@ -56,7 +56,7 @@ void Lexer::run(char* filename) {
                 {
                     // return
                     if (len == 7 && strcmp("return ", line) == 0) {
-                        tokens.emplace_back(Type::keyword, (int)Keyword::RETURN);
+                        tokens.emplace_back(Type::keyword_return);
                         token += 6;
                     }
                     // identifier

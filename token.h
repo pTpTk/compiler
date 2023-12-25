@@ -12,11 +12,6 @@ enum class Type
     integer
 };
 
-enum class Keyword
-{
-    INT, RETURN
-};
-
 class Token
 {
   public:
