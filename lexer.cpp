@@ -36,49 +36,10 @@ void Lexer::run(char* filename) {
                     PUSH_TOKEN(Type::symbol_semicolon);
                 case '=':
                     PUSH_TOKEN(Type::symbol_equal);
-                case 'i':
-                {
-                    // int
-                    if (len == 4 && strcmp("int ", line) == 0) {
-                        tokens.emplace_back(Type::keyword_int, (int)(Keyword::INT));
-                        token += 3;
-                    }
-                    // identifier
-                    else {
-                        int idfrLen = 0;
-                        char* idfrStart = token;
-                        while(isalpha(*token) || isdigit(*token)) {
-                            ++idfrLen;
-                            ++token;
-                        }
-                        std::string* idfrPtr = new std::string(idfrStart, idfrLen);
-                        tokens.emplace_back(Type::identifier, (long)idfrPtr);
-                    }
-                    break;
-                }
-                case 'r':
-                {
-                    // return
-                    if (len == 7 && strcmp("return ", line) == 0) {
-                        tokens.emplace_back(Type::keyword_return, (int)Keyword::RETURN);
-                        token += 6;
-                    }
-                    // identifier
-                    else {
-                        int idfrLen = 0;
-                        char* idfrStart = token;
-                        while(isalpha(*token) || isdigit(*token)) {
-                            ++idfrLen;
-                            ++token;
-                        }
-                        std::string* idfrPtr = new std::string(idfrStart, idfrLen);
-                        tokens.emplace_back(Type::identifier, (long)idfrPtr);
-                    }
-                    break;
-                }
+
                 // identifier
-                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h':
-                case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q':
+                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i':
+                case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
                 case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
                 case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H':
                 case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q':
@@ -91,6 +52,19 @@ void Lexer::run(char* filename) {
                         ++token;
                     }
                     std::string* idfrPtr = new std::string(idfrStart, idfrLen);
+                    
+                    if(*idfrPtr == "int") {
+                        tokens.emplace_back(Type::keyword_int);
+                        delete idfrPtr;
+                        break;
+                    }
+
+                    if(*idfrPtr == "return") {
+                        tokens.emplace_back(Type::keyword_return);
+                        delete idfrPtr;
+                        break;
+                    }
+
                     tokens.emplace_back(Type::identifier, (long)idfrPtr);
                     break;
                 }

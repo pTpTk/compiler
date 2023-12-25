@@ -2,18 +2,32 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "token.h"
 
 
 class Node
 {
+  virtual void print() {}
 };
 
-class Program : public Node
+class Statement : public Node
 {
   public:
-    Function function;
+    virtual void print() {}
+};
+
+class Return : public Statement
+{
+  public:
+    long returnValue;
+
+    Return(long rval): returnValue(rval) {}
+
+    void print() {
+      printf("Return: Return value: %ld\n", returnValue);
+    }
 };
 
 class Function : public Node
@@ -22,15 +36,15 @@ class Function : public Node
     Type returnType;
     std::string name;
     // need function params
-    Statement statement;
+    std::unique_ptr<Statement> statement;
+
+    void print() {
+      printf("Function: Name: %s\n", name.c_str());
+    }
 };
 
-class Statement : public Node
-{
-};
-
-class Return : public Statement
+class Program : public Node
 {
   public:
-    long returnValue;
+    std::unique_ptr<Function> function;
 };

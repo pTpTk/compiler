@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdio>
-#include <vector>
+#include <list>
 #include <cstring>
 #include <string>
 #include <cassert>
@@ -16,7 +16,7 @@ class Lexer
 {
   private:
   public:
-    std::vector<Token> tokens;
+    std::list<Token> tokens;
 
     Lexer(){}
     void run(char*);
