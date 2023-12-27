@@ -16,6 +16,7 @@ class Statement : public Node
 {
   public:
     virtual void print() {}
+    virtual long getRetVal() {return -1;}
 };
 
 class Return : public Statement
@@ -28,6 +29,10 @@ class Return : public Statement
     void print() {
       printf("Return: Return value: %ld\n", returnValue);
     }
+
+    long getRetVal() {
+      return returnValue;
+    }
 };
 
 class Function : public Node
@@ -36,7 +41,7 @@ class Function : public Node
     Type returnType;
     std::string name;
     // need function params
-    std::unique_ptr<Statement> statement;
+    std::shared_ptr<Statement> statement;
 
     void print() {
       printf("Function: Name: %s\n", name.c_str());
@@ -46,5 +51,5 @@ class Function : public Node
 class Program : public Node
 {
   public:
-    std::unique_ptr<Function> function;
+    std::shared_ptr<Function> function;
 };

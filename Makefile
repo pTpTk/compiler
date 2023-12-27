@@ -1,2 +1,2 @@
-all: main.cpp token.h lexer.h lexer.cpp
-	g++ -g main.cpp lexer.cpp parser.cpp -o cint
+all: $(wildcard *.cpp) $(wildcard *.h)
+	g++ -g $(wildcard *.cpp) -o cint

@@ -6,6 +6,7 @@
 #include <cassert>
 #include "lexer.h"
 #include "parser.h"
+#include "assembler.h"
 
 int main(int argc, char** argv) {
     if (argc !=2) {
@@ -28,6 +29,13 @@ int main(int argc, char** argv) {
 
     parser.prog.function->print();
     parser.prog.function->statement->print();
+
+    Assembler assembler;
+    assembler.run(parser.prog);
+
+    for(auto& v : assembler.output) {
+        std::cout << v << std::endl;
+    }
 
     return 0;
 }
