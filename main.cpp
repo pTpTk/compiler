@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     assembler.run(parser.prog);
 
     for(auto& v : assembler.output) {
-        std::cout << v << std::endl;
+        v->print();
     }
 
     return 0;

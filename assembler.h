@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "ast.h"
+#include "asm.h"
 
 class Assembler
 {
@@ -13,7 +14,7 @@ class Assembler
     void asmStmt(std::shared_ptr<Statement>);
     void asmReturn(std::shared_ptr<Statement>);
   public:
-    std::vector<std::string> output;
+    std::vector<std::shared_ptr<Instruction>> output;
 
     Assembler(){}
     void run(Program&);

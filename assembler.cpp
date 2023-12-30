@@ -7,8 +7,7 @@ Assembler::run(Program& prog) {
 
 void
 Assembler::asmFunc(std::shared_ptr<Function> func) {
-    output.emplace_back(" .globl " + func->name);
-    output.emplace_back(func->name + ":");
+    output.emplace_back(new Tag(func->name));
 
     asmStmt(func->statement);
 }
@@ -26,6 +25,6 @@ Assembler::asmReturn(std::shared_ptr<Statement> stmt) {
     inst += "$" + std::to_string(stmt->getRetVal()) + ",";
     inst += " ";
     inst += "%eax";
-    output.emplace_back(inst);
-    output.emplace_back(" ret");
+    output.emplace_back(new Movl(stmt->getRetVal(), "eax"));
+    output.emplace_back(new Ret);
 }
