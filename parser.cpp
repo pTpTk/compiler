@@ -6,9 +6,9 @@ Parser::run(std::list<Token>& tokens) {
     prog.function = parseFunc(tokens);
 }
 
-std::unique_ptr<Function>
+std::shared_ptr<Function>
 Parser::parseFunc(std::list<Token>& tokens) {
-    std::unique_ptr<Function> ret(new Function());
+    std::shared_ptr<Function> ret(new Function());
 
     TOKEN_EXPECT(Type::keyword_int);
     ret->returnType = Type::keyword_int;
@@ -35,13 +35,14 @@ Parser::parseFunc(std::list<Token>& tokens) {
     return ret;
 }
 
-std::unique_ptr<Statement>
+std::shared_ptr<Statement>
 Parser::parseStmt(std::list<Token>& tokens) {
     TOKEN_EXPECT(Type::keyword_return);
     tokens.pop_front();
 
     TOKEN_EXPECT(Type::integer);
-    std::unique_ptr<Statement> ret{new Return(tokens.front().val)};
+    std::shared_ptr<Expression> retVal{new Constant(tokens.front().val)};
+    std::shared_ptr<Statement> ret{new Return(retVal)};
     tokens.pop_front();
 
     TOKEN_EXPECT(Type::symbol_semicolon);

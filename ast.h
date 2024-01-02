@@ -12,6 +12,55 @@ class Node
   virtual void print() {}
 };
 
+class Expression : public Node
+{
+  public:
+    virtual long eval() { return -1; }
+};
+
+class Constant : public Expression
+{
+  private:
+    long val;
+  public:
+    Constant(long _val) : val(_val) {}
+
+    long eval() { return val; }
+    void print() {
+      printf("Constant: %ld\n", val);
+    }
+};
+
+class Negation : public Expression
+{
+  private:
+    std::shared_ptr<Expression> exp;
+  public:
+    Negation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
+
+    long eval() { return -(exp->eval()); }
+};
+
+class BitwiseComplement : public Expression
+{
+  private:
+    std::shared_ptr<Expression> exp;
+  public:
+    BitwiseComplement(std::shared_ptr<Expression> _exp) : exp(_exp) {}
+
+    long eval() { return ~(exp->eval()); }
+};
+
+class LogicalNegation : public Expression
+{
+  private:
+    std::shared_ptr<Expression> exp;
+  public:
+    LogicalNegation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
+
+    long eval() { return !(exp->eval()); }
+};
+
 class Statement : public Node
 {
   public:
@@ -22,16 +71,16 @@ class Statement : public Node
 class Return : public Statement
 {
   public:
-    long returnValue;
+    std::shared_ptr<Expression> exp;
 
-    Return(long rval): returnValue(rval) {}
+    Return(std::shared_ptr<Expression> _exp): exp(_exp) {}
 
     void print() {
-      printf("Return: Return value: %ld\n", returnValue);
+      printf("Return: Return value: %ld\n", exp->eval());
     }
 
     long getRetVal() {
-      return returnValue;
+      return exp->eval();
     }
 };
 

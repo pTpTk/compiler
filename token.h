@@ -14,6 +14,9 @@ enum class Type
     symbol_bracket_r,
     symbol_semicolon,
     symbol_equal,
+    symbol_negation,
+    symbol_bit_complement,
+    symbol_logical_negation,
 
     keyword_int,
     keyword_return,

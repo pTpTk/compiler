@@ -24,8 +24,8 @@ if(tokens.front().type != T) { \
 class Parser
 {
   private:
-    std::unique_ptr<Function> parseFunc(std::list<Token>&);
-    std::unique_ptr<Statement> parseStmt(std::list<Token>&);
+    std::shared_ptr<Function> parseFunc(std::list<Token>&);
+    std::shared_ptr<Statement> parseStmt(std::list<Token>&);
   public:
     Program prog;
 

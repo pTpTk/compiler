@@ -36,6 +36,12 @@ void Lexer::run(char* filename) {
                     PUSH_TOKEN(Type::symbol_semicolon);
                 case '=':
                     PUSH_TOKEN(Type::symbol_equal);
+                case '-':
+                    PUSH_TOKEN(Type::symbol_negation);
+                case '~':
+                    PUSH_TOKEN(Type::symbol_bit_complement);
+                case '!':
+                    PUSH_TOKEN(Type::symbol_logical_negation);
 
                 // identifier
                 case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i':
