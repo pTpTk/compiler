@@ -19,12 +19,6 @@ Assembler::asmStmt(std::shared_ptr<Statement> stmt) {
 
 void
 Assembler::asmReturn(std::shared_ptr<Statement> stmt) {
-    std::string inst;
-    inst = " movl";
-    inst += "\t";
-    inst += "$" + std::to_string(stmt->getRetVal()) + ",";
-    inst += " ";
-    inst += "%eax";
     output.emplace_back(new Movl(stmt->getRetVal(), "eax"));
     output.emplace_back(new Ret);
 }

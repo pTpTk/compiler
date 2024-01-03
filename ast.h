@@ -9,7 +9,8 @@
 
 class Node
 {
-  virtual void print() {}
+  public:
+    virtual void print() {}
 };
 
 class Expression : public Node
@@ -39,6 +40,10 @@ class Negation : public Expression
     Negation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
     long eval() { return -(exp->eval()); }
+    void print() {
+      printf("-");
+      exp->print();
+    }
 };
 
 class BitwiseComplement : public Expression
@@ -49,6 +54,10 @@ class BitwiseComplement : public Expression
     BitwiseComplement(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
     long eval() { return ~(exp->eval()); }
+    void print() {
+      printf("~");
+      exp->print();
+    }
 };
 
 class LogicalNegation : public Expression
@@ -59,6 +68,10 @@ class LogicalNegation : public Expression
     LogicalNegation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
     long eval() { return !(exp->eval()); }
+    void print() {
+      printf("!");
+      exp->print();
+    }
 };
 
 class Statement : public Node
@@ -73,10 +86,12 @@ class Return : public Statement
   public:
     std::shared_ptr<Expression> exp;
 
+    Return() = default;
     Return(std::shared_ptr<Expression> _exp): exp(_exp) {}
 
     void print() {
       printf("Return: Return value: %ld\n", exp->eval());
+      exp->print();
     }
 
     long getRetVal() {
