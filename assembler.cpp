@@ -19,6 +19,12 @@ Assembler::asmStmt(std::shared_ptr<Statement> stmt) {
 
 void
 Assembler::asmReturn(std::shared_ptr<Statement> stmt) {
-    output.emplace_back(new Movl(stmt->getRetVal(), "eax"));
+    auto retPtr = std::dynamic_pointer_cast<Return>(stmt);
+    retPtr->exp->assemble(output);
     output.emplace_back(new Ret);
+}
+
+void
+Assembler::asmExpr(std::shared_ptr<Expression> expr) {
+
 }

@@ -65,6 +65,15 @@ class Token
             case Type::symbol_equal: 
                 printf("=");
                 break;
+            case Type::symbol_negation:
+                printf("-");
+                break;
+            case Type::symbol_bit_complement:
+                printf("~");
+                break;
+            case Type::symbol_logical_negation:
+                printf("!");
+                break;
             case Type::keyword_int:
                 printf("int");
                 break;
