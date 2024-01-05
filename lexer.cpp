@@ -42,6 +42,12 @@ void Lexer::run(char* filename) {
                     PUSH_TOKEN(Type::symbol_bit_complement);
                 case '!':
                     PUSH_TOKEN(Type::symbol_logical_negation);
+                case '+':
+                    PUSH_TOKEN(Type::symbol_addition);
+                case '*':
+                    PUSH_TOKEN(Type::symbol_multiplication);
+                case '/':
+                    PUSH_TOKEN(Type::symbol_division);
 
                 // identifier
                 case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i':

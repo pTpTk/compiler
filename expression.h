@@ -93,3 +93,80 @@ class LogicalNegation : public Expression
       exp->print();
     }
 };
+
+class Addition : public Expression
+{
+  private:
+    std::shared_ptr<Expression> expL;
+    std::shared_ptr<Expression> expR;
+  public:
+    Addition(std::shared_ptr<Expression> _expL,
+             std::shared_ptr<Expression> _expR) 
+    : expL(_expL), expR(_expR) {}
+
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+        expL->assemble(insts);
+        insts.emplace_back(new Push("eax"));
+        expR->assemble(insts);
+        insts.emplace_back(new Pop("ecx"));
+        insts.emplace_back(new Addl("ecx", "eax"));
+    }
+};
+
+class Subtraction : public Expression
+{
+  private:
+    std::shared_ptr<Expression> expL;
+    std::shared_ptr<Expression> expR;
+  public:
+    Subtraction(std::shared_ptr<Expression> _expL,
+                std::shared_ptr<Expression> _expR) 
+    : expL(_expL), expR(_expR) {}
+
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+        expR->assemble(insts);
+        insts.emplace_back(new Push("eax"));
+        expL->assemble(insts);
+        insts.emplace_back(new Pop("ecx"));
+        insts.emplace_back(new Addl("ecx", "eax"));
+    }
+};
+
+class Multiplication : public Expression
+{
+  private:
+    std::shared_ptr<Expression> expL;
+    std::shared_ptr<Expression> expR;
+  public:
+    Multiplication(std::shared_ptr<Expression> _expL,
+                   std::shared_ptr<Expression> _expR) 
+    : expL(_expL), expR(_expR) {}
+
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+        expL->assemble(insts);
+        insts.emplace_back(new Push("eax"));
+        expR->assemble(insts);
+        insts.emplace_back(new Pop("ecx"));
+        insts.emplace_back(new Imul("ecx", "eax"));
+    }
+};
+
+class Division : public Expression
+{
+  private:
+    std::shared_ptr<Expression> expL;
+    std::shared_ptr<Expression> expR;
+  public:
+    Division(std::shared_ptr<Expression> _expL,
+             std::shared_ptr<Expression> _expR) 
+    : expL(_expL), expR(_expR) {}
+
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+        expR->assemble(insts);
+        insts.emplace_back(new Push("eax"));
+        expL->assemble(insts);
+        insts.emplace_back(new Pop("ecx"));
+        insts.emplace_back(new Cdq());
+        insts.emplace_back(new Idivl("ecx"));
+    }
+};

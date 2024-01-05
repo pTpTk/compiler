@@ -4,14 +4,8 @@
 
 enum class Opcode
 {
-    Nop,
-    Tag,
-    Movl,
-    Ret,
-    Neg,
-    Not,
-    Cmpl,
-    Sete
+    Nop, Tag, Movl, Ret, Neg, Not, Cmpl, Sete, Push,
+    Pop, Addl, Imul, Subl, Idivl, Cdq
 };
 
 class Instruction
@@ -116,5 +110,103 @@ class Sete : public Instruction
 
     void print(FILE* fp = stdout) {
         fprintf(fp, " sete\t%%%s\n", dst.c_str());
+    }
+};
+
+class Push : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Push(std::string _dst)
+    : dst(_dst) { op = Opcode::Push; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " push\t%%%s\n", dst.c_str());
+    }
+};
+
+class Pop : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Pop(std::string _dst)
+    : dst(_dst) { op = Opcode::Pop; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " pop\t%%%s\n", dst.c_str());
+    }
+};
+
+class Addl : public Instruction
+{
+  private:
+  public:
+    std::string src;
+    std::string dst;
+    
+    Addl(std::string _src, std::string _dst)
+    : src(_src), dst(_dst) { op = Opcode::Addl; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " addl\t%%%s, %%%s\n", src.c_str(), dst.c_str());
+    }
+};
+
+class Subl : public Instruction
+{
+  private:
+  public:
+    std::string src;
+    std::string dst;
+    
+    Subl(std::string _src, std::string _dst)
+    : src(_src), dst(_dst) { op = Opcode::Subl; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " subl\t%%%s, %%%s\n", src.c_str(), dst.c_str());
+    }
+};
+
+class Imul : public Instruction
+{
+  private:
+  public:
+    std::string src;
+    std::string dst;
+    
+    Imul(std::string _src, std::string _dst)
+    : src(_src), dst(_dst) { op = Opcode::Imul; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " imul\t%%%s, %%%s\n", src.c_str(), dst.c_str());
+    }
+};
+
+class Idivl : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Idivl(std::string _dst)
+    :dst(_dst) { op = Opcode::Idivl; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " idivl\t%%%s\n", dst.c_str());
+    }
+};
+
+class Cdq : public Instruction
+{
+  public:
+    Cdq()
+    { op = Opcode::Cdq; }
+    
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " cdq\n");
     }
 };

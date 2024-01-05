@@ -17,6 +17,9 @@ enum class Type
     symbol_negation,
     symbol_bit_complement,
     symbol_logical_negation,
+    symbol_addition,
+    symbol_multiplication,
+    symbol_division,
 
     keyword_int,
     keyword_return,
@@ -73,6 +76,15 @@ class Token
                 break;
             case Type::symbol_logical_negation:
                 printf("!");
+                break;
+            case Type::symbol_addition:
+                printf("+");
+                break;
+            case Type::symbol_multiplication:
+                printf("*");
+                break;
+            case Type::symbol_division:
+                printf("/");
                 break;
             case Type::keyword_int:
                 printf("int");
