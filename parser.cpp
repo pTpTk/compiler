@@ -49,9 +49,133 @@ Parser::parseStmt(std::list<Token>& tokens) {
     return ret;
 }
 
-// <exp> ::= <term> { ("+" | "-") <term> }
+// <exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
 std::shared_ptr<Expression>
 Parser::parseExpr(std::list<Token>& tokens) {
+    std::shared_ptr<Expression> ret;
+
+    assert(!tokens.empty());
+
+    ret = parseLAnd(tokens);
+    auto tkType = tokens.front().type;
+    while(tkType == Type::symbol_logical_or) {
+        tokens.pop_front();
+        auto termR = parseLAnd(tokens);
+        ret = std::make_shared<LogicalOr>(ret, termR);
+
+        tkType = tokens.front().type;
+    }
+
+    return ret;
+}
+
+// <logical-and-exp> ::= <equality-exp> { "&&" <equality-exp> }
+std::shared_ptr<Expression>
+Parser::parseLAnd(std::list<Token>& tokens) {
+    std::shared_ptr<Expression> ret;
+
+    assert(!tokens.empty());
+
+    ret = parseEquality(tokens);
+    auto tkType = tokens.front().type;
+    while(tkType == Type::symbol_logical_and) {
+        tokens.pop_front();
+        auto termR = parseEquality(tokens);
+        ret = std::make_shared<LogicalAnd>(ret, termR);
+
+        tkType = tokens.front().type;
+    }
+
+    return ret;
+}
+
+// <equality-exp> ::= <relational-exp> { ("!=" | "==") <relational-exp> }
+std::shared_ptr<Expression>
+Parser::parseEquality(std::list<Token>& tokens) {
+    std::shared_ptr<Expression> ret;
+
+    assert(!tokens.empty());
+
+    ret = parseRelational(tokens);
+    auto tkType = tokens.front().type;
+    while(tkType == Type::symbol_equal ||
+          tkType == Type::symbol_not_equal) {
+        switch(tkType) {
+            case Type::symbol_equal:
+            {
+                tokens.pop_front();
+                auto termR = parseRelational(tokens);
+                ret = std::make_shared<Equal>(ret, termR);
+                break;
+            }
+            case Type::symbol_not_equal:
+            {
+                tokens.pop_front();
+                auto termR = parseRelational(tokens);
+                ret = std::make_shared<NotEqual>(ret, termR);
+                break;
+            }
+        }
+
+        tkType = tokens.front().type;
+    }
+
+    return ret;
+}
+
+// <relational-exp> ::= <additive-exp> { ("<" | ">" | "<=" | ">=") <additive-exp> }
+std::shared_ptr<Expression>
+Parser::parseRelational(std::list<Token>& tokens) {
+    std::shared_ptr<Expression> ret;
+
+    assert(!tokens.empty());
+
+    ret = parseAdditive(tokens);
+    auto tkType = tokens.front().type;
+    while(tkType == Type::symbol_less       ||
+          tkType == Type::symbol_less_equal ||
+          tkType == Type::symbol_greater    ||
+          tkType == Type::symbol_greater_equal) {
+        switch(tkType) {
+            case Type::symbol_less:
+            {
+                tokens.pop_front();
+                auto termR = parseAdditive(tokens);
+                ret = std::make_shared<Less>(ret, termR);
+                break;
+            }
+            case Type::symbol_less_equal:
+            {
+                tokens.pop_front();
+                auto termR = parseAdditive(tokens);
+                ret = std::make_shared<LessEqual>(ret, termR);
+                break;
+            }
+            case Type::symbol_greater:
+            {
+                tokens.pop_front();
+                auto termR = parseAdditive(tokens);
+                ret = std::make_shared<Greater>(ret, termR);
+                break;
+            }
+            case Type::symbol_greater_equal:
+            {
+                tokens.pop_front();
+                auto termR = parseAdditive(tokens);
+                ret = std::make_shared<GreaterEqual>(ret, termR);
+                break;
+            }
+        }
+
+        tkType = tokens.front().type;
+    }
+
+    return ret;
+}
+
+// <additive-exp> ::= <term> { ("+" | "-") <term> }
+std::shared_ptr<Expression>
+Parser::parseAdditive(std::list<Token>& tokens) {
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());

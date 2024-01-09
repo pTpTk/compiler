@@ -35,12 +35,27 @@ void Lexer::run(char* filename) {
                 case ';':
                     PUSH_TOKEN(Type::symbol_semicolon);
                 case '=':
-                    PUSH_TOKEN(Type::symbol_equal);
+                {
+                    if(*(token+1) == '=') {
+                        tokens.emplace_back(Type::symbol_equal);
+                        token += 2;
+                        break;
+                    }
+                    PUSH_TOKEN(Type::symbol_assign);
+                }
                 case '-':
                     PUSH_TOKEN(Type::symbol_negation);
                 case '~':
                     PUSH_TOKEN(Type::symbol_bit_complement);
                 case '!':
+                {
+                    if(*(token+1) == '=') {
+                        tokens.emplace_back(Type::symbol_not_equal);
+                        token += 2;
+                        break;
+                    }
+                    PUSH_TOKEN(Type::symbol_logical_negation);
+                }
                     PUSH_TOKEN(Type::symbol_logical_negation);
                 case '+':
                     PUSH_TOKEN(Type::symbol_addition);
@@ -48,6 +63,40 @@ void Lexer::run(char* filename) {
                     PUSH_TOKEN(Type::symbol_multiplication);
                 case '/':
                     PUSH_TOKEN(Type::symbol_division);
+                case '&':
+                {
+                    if(*(token+1) == '&') {
+                        tokens.emplace_back(Type::symbol_logical_and);
+                        token += 2;
+                        break;
+                    }
+                }
+                case '|':
+                {
+                    if(*(token+1) == '|') {
+                        tokens.emplace_back(Type::symbol_logical_or);
+                        token += 2;
+                        break;
+                    }
+                }
+                case '<':
+                {
+                    if(*(token+1) == '=') {
+                        tokens.emplace_back(Type::symbol_less_equal);
+                        token += 2;
+                        break;
+                    }
+                    PUSH_TOKEN(Type::symbol_less);
+                }
+                case '>':
+                {
+                    if(*(token+1) == '=') {
+                        tokens.emplace_back(Type::symbol_greater_equal);
+                        token += 2;
+                        break;
+                    }
+                    PUSH_TOKEN(Type::symbol_greater);
+                }
 
                 // identifier
                 case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i':

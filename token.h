@@ -13,13 +13,21 @@ enum class Type
     symbol_bracket_l,
     symbol_bracket_r,
     symbol_semicolon,
-    symbol_equal,
+    symbol_assign,
     symbol_negation,
     symbol_bit_complement,
     symbol_logical_negation,
+    symbol_logical_and,
+    symbol_logical_or,
     symbol_addition,
     symbol_multiplication,
     symbol_division,
+    symbol_equal,
+    symbol_not_equal,
+    symbol_less,
+    symbol_less_equal,
+    symbol_greater,
+    symbol_greater_equal,
 
     keyword_int,
     keyword_return,
@@ -65,7 +73,7 @@ class Token
             case Type::symbol_semicolon: 
                 printf(";");
                 break;
-            case Type::symbol_equal: 
+            case Type::symbol_assign: 
                 printf("=");
                 break;
             case Type::symbol_negation:
@@ -85,6 +93,30 @@ class Token
                 break;
             case Type::symbol_division:
                 printf("/");
+                break;
+            case Type::symbol_logical_and:
+                printf("&&");
+                break;
+            case Type::symbol_logical_or:
+                printf("||");
+                break;
+            case Type::symbol_equal:
+                printf("==");
+                break;
+            case Type::symbol_not_equal:
+                printf("!=");
+                break;
+            case Type::symbol_less:
+                printf("<");
+                break;
+            case Type::symbol_less_equal:
+                printf("<=");
+                break;
+            case Type::symbol_greater:
+                printf(">");
+                break;
+            case Type::symbol_greater_equal:
+                printf(">=");
                 break;
             case Type::keyword_int:
                 printf("int");

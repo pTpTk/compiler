@@ -2,10 +2,16 @@
 
 #include <string>
 
+std::string labelMaker() {
+    static int count = 0;
+    return "_L" + std::to_string(count++);
+}
+
 enum class Opcode
 {
     Nop, Tag, Movl, Ret, Neg, Not, Cmpl, Sete, Push,
-    Pop, Addl, Imul, Subl, Idivl, Cdq
+    Pop, Addl, Imul, Subl, Idivl, Cdq, Setne, Je, Jne,
+    Jmp, Setl, Setg, Setle, Setge
 };
 
 class Instruction
@@ -89,13 +95,19 @@ class Cmpl : public Instruction
   private:
   public:
     int imm;
+    std::string src;
     std::string dst;
+    bool has_imm;
     
     Cmpl(int _imm, std::string _dst)
-    : imm(_imm), dst(_dst) { op = Opcode::Cmpl; }
+    : imm(_imm), dst(_dst), has_imm(true) { op = Opcode::Cmpl; }\
+
+    Cmpl(std::string _src, std::string _dst)
+    : src(_src), dst(_dst), has_imm(false) { op = Opcode::Cmpl; }
 
     void print(FILE* fp = stdout) {
-        fprintf(fp, " cmpl\t$%d, %%%s\n", imm, dst.c_str());
+        if(has_imm) fprintf(fp, " cmpl\t$%d, %%%s\n", imm, dst.c_str());
+        else        fprintf(fp, " cmpl\t$%%%s, %%%s\n", src.c_str(), dst.c_str());
     }
 };
 
@@ -110,6 +122,76 @@ class Sete : public Instruction
 
     void print(FILE* fp = stdout) {
         fprintf(fp, " sete\t%%%s\n", dst.c_str());
+    }
+};
+
+class Setne : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Setne(std::string _dst)
+    : dst(_dst) { op = Opcode::Setne; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " setne\t%%%s\n", dst.c_str());
+    }
+};
+
+class Setl : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Setl(std::string _dst)
+    : dst(_dst) { op = Opcode::Setne; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " setl\t%%%s\n", dst.c_str());
+    }
+};
+
+class Setg : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Setg(std::string _dst)
+    : dst(_dst) { op = Opcode::Setne; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " setg\t%%%s\n", dst.c_str());
+    }
+};
+
+class Setle : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Setle(std::string _dst)
+    : dst(_dst) { op = Opcode::Setne; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " setle\t%%%s\n", dst.c_str());
+    }
+};
+
+class Setge : public Instruction
+{
+  private:
+  public:
+    std::string dst;
+    
+    Setge(std::string _dst)
+    : dst(_dst) { op = Opcode::Setne; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " setge\t%%%s\n", dst.c_str());
     }
 };
 
@@ -193,7 +275,7 @@ class Idivl : public Instruction
     std::string dst;
     
     Idivl(std::string _dst)
-    :dst(_dst) { op = Opcode::Idivl; }
+    : dst(_dst) { op = Opcode::Idivl; }
 
     void print(FILE* fp = stdout) {
         fprintf(fp, " idivl\t%%%s\n", dst.c_str());
@@ -208,5 +290,41 @@ class Cdq : public Instruction
     
     void print(FILE* fp = stdout) {
         fprintf(fp, " cdq\n");
+    }
+};
+
+class Je : public Instruction
+{
+  public:
+    std::string label;
+    Je(std::string _label)
+    : label(_label) {}
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " je %s\n", label.c_str());
+    }
+};
+
+class Jmp : public Instruction
+{
+  public:
+    std::string label;
+    Jmp(std::string _label)
+    : label(_label) {}
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " jmp %s\n", label.c_str());
+    }
+};
+
+class Jne : public Instruction
+{
+  public:
+    std::string label;
+    Jne(std::string _label)
+    : label(_label) {}
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " jne %s\n", label.c_str());
     }
 };
