@@ -38,10 +38,36 @@ Parser::parseFunc(std::list<Token>& tokens) {
 std::shared_ptr<Statement>
 Parser::parseStmt(std::list<Token>& tokens) {
     std::shared_ptr<Statement> ret;
-    TOKEN_EXPECT(Type::keyword_return);
-    tokens.pop_front();
+    assert(!tokens.empty());
 
-    ret = std::make_shared<Return>(parseExpr(tokens));
+    switch(tokens.front().type) {
+        case Type::keyword_return:
+            tokens.pop_front();
+            ret = std::make_shared<Return>(parseExpr(tokens));
+            break;
+        case Type::keyword_int:
+        {
+            tokens.pop_front();
+            TOKEN_EXPECT(Type::identifier);
+            std::string varName = *(std::string*)tokens.front().val;
+            tokens.pop_front();
+            
+            if(tokens.front().type == Type::symbol_semicolon)
+                ret = std::make_shared<Declare>(varName);
+            else
+                ret = std::make_shared<Declare>(varName, parseExpr(tokens));
+            break;
+        }
+        default:
+        {
+            std::cerr << "syntax err, expecting token "
+            << "return or int" << std::endl;
+            printf("token type: %d, ", (int)tokens.front().type);
+            tokens.front().print();
+            std::cout << std::endl;
+            assert(false);
+        }
+    }    
 
     TOKEN_EXPECT(Type::symbol_semicolon);
     tokens.pop_front();

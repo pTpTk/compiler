@@ -7,7 +7,7 @@ Assembler::run(Program& prog) {
 
 void
 Assembler::asmFunc(std::shared_ptr<Function> func) {
-    output.emplace_back(new Tag(func->name));
+    output.emplace_back(new FuncName(func->name));
 
     asmStmt(func->statement);
 }

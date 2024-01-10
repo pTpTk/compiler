@@ -8,6 +8,11 @@
 #include "parser.h"
 #include "assembler.h"
 
+std::string labelMaker() {
+    static int count = 0;
+    return "_L" + std::to_string(count++);
+}
+
 int main(int argc, char** argv) {
     if (argc !=2) {
         std::cerr << "Wrong input format!!\n";

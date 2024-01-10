@@ -2,10 +2,7 @@
 
 #include <string>
 
-std::string labelMaker() {
-    static int count = 0;
-    return "_L" + std::to_string(count++);
-}
+std::string labelMaker();
 
 enum class Opcode
 {
@@ -22,6 +19,20 @@ class Instruction
     virtual void print(FILE* fp = stdout){}
 };
 
+class FuncName : public Instruction
+{
+  private:
+    std::string tagName;
+  public:
+    FuncName(std::string _tagName)
+    : tagName(_tagName) { op = Opcode::Tag; }
+
+    void print(FILE* fp = stdout) {
+        fprintf(fp, " .globl %s\n", tagName.c_str());
+        fprintf(fp, "%s:\n", tagName.c_str());
+    }
+};
+
 class Tag : public Instruction
 {
   private:
@@ -31,7 +42,6 @@ class Tag : public Instruction
     : tagName(_tagName) { op = Opcode::Tag; }
 
     void print(FILE* fp = stdout) {
-        fprintf(fp, " .globl %s\n", tagName.c_str());
         fprintf(fp, "%s:\n", tagName.c_str());
     }
 };

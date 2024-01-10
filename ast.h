@@ -39,6 +39,27 @@ class Return : public Statement
     }
 };
 
+class Declare : public Statement
+{
+  public:
+    std::string varName;
+    std::shared_ptr<Expression> exp;
+
+    Declare() = default;
+    Declare(std::string _varName) : varName(_varName) {}
+    Declare(std::string _varName, std::shared_ptr<Expression> _exp)
+    : varName(_varName), exp(_exp) {}
+
+    void print() {
+      printf("Return: Return value: %ld\n", exp->eval());
+      exp->print();
+    }
+
+    long getRetVal() {
+      return exp->eval();
+    }
+};
+
 class Function : public Node
 {
   public:
