@@ -27,7 +27,8 @@ Parser::parseFunc(std::list<Token>& tokens) {
     TOKEN_EXPECT(Type::symbol_brace_l);
     tokens.pop_front();
 
-    ret->statement = parseStmt(tokens);
+    while(tokens.front().type != Type::symbol_brace_r)
+        ret->statements.emplace_back(parseStmt(tokens));
 
     TOKEN_EXPECT(Type::symbol_brace_r);
     tokens.pop_front();
@@ -60,12 +61,7 @@ Parser::parseStmt(std::list<Token>& tokens) {
         }
         default:
         {
-            std::cerr << "syntax err, expecting token "
-            << "return or int" << std::endl;
-            printf("token type: %d, ", (int)tokens.front().type);
-            tokens.front().print();
-            std::cout << std::endl;
-            assert(false);
+            ret = std::make_shared<ExprStmt>(parseExpr(tokens));
         }
     }    
 
@@ -75,9 +71,32 @@ Parser::parseStmt(std::list<Token>& tokens) {
     return ret;
 }
 
-// <exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
+// <exp> ::= <id> "=" <exp> | <logical-or-exp>
 std::shared_ptr<Expression>
 Parser::parseExpr(std::list<Token>& tokens) {
+    std::shared_ptr<Expression> ret;
+
+    assert(!tokens.empty());
+
+    if(tokens.front().type == Type::identifier) {
+        std::string varName = *(std::string*)tokens.front().val;
+        tokens.pop_front();
+
+        TOKEN_EXPECT(Type::symbol_assign);
+        tokens.pop_front();
+
+        auto val = parseLOr(tokens);
+        ret = std::make_shared<Assignment>(varName, val);
+    }
+    else
+        ret = parseLOr(tokens);
+
+    return ret;
+}
+
+// <logical-or-exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
+std::shared_ptr<Expression>
+Parser::parseLOr(std::list<Token>& tokens) {
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());

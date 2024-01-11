@@ -10,9 +10,6 @@ class Expression
 {
   public:
     virtual void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {}
-    void print() {}
-    //TODD: is eval needed?
-    virtual long eval() { return -1; }
 };
 
 class Constant : public Expression
@@ -24,11 +21,6 @@ class Constant : public Expression
 
     void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
         insts.emplace_back(new Movl(val, "eax"));
-    }
-
-    long eval() { return val; }
-    void print() {
-      printf("Constant: %ld\n", val);
     }
 };
 
@@ -44,12 +36,6 @@ class Negation : public Expression
         
         insts.emplace_back(new Neg("eax"));
     }
-
-    long eval() { return -(exp->eval()); }
-    void print() {
-      printf("-");
-      exp->print();
-    }
 };
 
 class BitwiseComplement : public Expression
@@ -63,12 +49,6 @@ class BitwiseComplement : public Expression
         exp->assemble(insts);
         
         insts.emplace_back(new Not("eax"));
-    }
-
-    long eval() { return ~(exp->eval()); }
-    void print() {
-      printf("~");
-      exp->print();
     }
 };
 
@@ -85,12 +65,6 @@ class LogicalNegation : public Expression
         insts.emplace_back(new Cmpl(0, "eax"));
         insts.emplace_back(new Movl(0, "eax"));
         insts.emplace_back(new Sete("al"));
-    }
-
-    long eval() { return !(exp->eval()); }
-    void print() {
-      printf("!");
-      exp->print();
     }
 };
 
@@ -350,4 +324,24 @@ class NotEqual : public Expression
         insts.emplace_back(new Movl(0, "eax"));
         insts.emplace_back(new Setne("al"));
     }
+};
+
+class Assignment : public Expression
+{
+  private:
+    std::string name;
+    std::shared_ptr<Expression> exp;
+  public:
+    Assignment(std::string _name,
+               std::shared_ptr<Expression> _exp) 
+    : name(_name), exp(_exp) {}
+};
+
+class Variable : public Expression
+{
+  private:
+    std::string name;
+  public:
+    Variable(std::string _name)
+    : name(_name) {}
 };
