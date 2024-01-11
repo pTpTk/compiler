@@ -11,6 +11,7 @@
 class Statement
 {
   public:
+    virtual void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {}
     virtual void print() {}
 };
 
@@ -24,6 +25,13 @@ class Return : public Statement
 
     void print() {
       printf("Return statement\n");
+    }
+
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+        exp->assemble(insts);
+        insts.emplace_back(new Movl("ebp", "esp"));
+        insts.emplace_back(new Pop("ebp"));
+        insts.emplace_back(new Ret);
     }
 };
 

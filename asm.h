@@ -51,13 +51,19 @@ class Movl : public Instruction
   private:
   public:
     int imm;
+    std::string src;
     std::string dst;
+    bool has_imm;
     
     Movl(int _imm, std::string _dst)
-    : imm(_imm), dst(_dst) { op = Opcode::Movl; }
+    : imm(_imm), dst(_dst), has_imm(true) { op = Opcode::Cmpl; }
+
+    Movl(std::string _src, std::string _dst)
+    : src(_src), dst(_dst), has_imm(false) { op = Opcode::Cmpl; }
 
     void print(FILE* fp = stdout) {
-        fprintf(fp, " movl\t$%d, %%%s\n", imm, dst.c_str());
+        if(has_imm) fprintf(fp, " movl\t$%d, %%%s\n", imm, dst.c_str());
+        else        fprintf(fp, " movl\t$%%%s, %%%s\n", src.c_str(), dst.c_str());
     }
 };
 
@@ -110,7 +116,7 @@ class Cmpl : public Instruction
     bool has_imm;
     
     Cmpl(int _imm, std::string _dst)
-    : imm(_imm), dst(_dst), has_imm(true) { op = Opcode::Cmpl; }\
+    : imm(_imm), dst(_dst), has_imm(true) { op = Opcode::Cmpl; }
 
     Cmpl(std::string _src, std::string _dst)
     : src(_src), dst(_dst), has_imm(false) { op = Opcode::Cmpl; }
