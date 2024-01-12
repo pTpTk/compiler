@@ -5,7 +5,10 @@
 #include <memory>
 
 #include "token.h"
+#include "asm.h"
 #include "ast_function.h"
+#include "ast_statement.h"
+#include "ast_expression.h"
 
 class Program
 {

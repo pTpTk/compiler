@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "asm.h"
+class Instruction;
 
 class Expression
 {
@@ -19,9 +19,7 @@ class Constant : public Expression
   public:
     Constant(long _val) : val(_val) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        insts.emplace_back(new Movl(val, "eax"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Negation : public Expression
@@ -31,11 +29,7 @@ class Negation : public Expression
   public:
     Negation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        exp->assemble(insts);
-        
-        insts.emplace_back(new Neg("eax"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class BitwiseComplement : public Expression
@@ -45,11 +39,7 @@ class BitwiseComplement : public Expression
   public:
     BitwiseComplement(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        exp->assemble(insts);
-        
-        insts.emplace_back(new Not("eax"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class LogicalNegation : public Expression
@@ -59,13 +49,7 @@ class LogicalNegation : public Expression
   public:
     LogicalNegation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        exp->assemble(insts);
-
-        insts.emplace_back(new Cmpl(0, "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Sete("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Addition : public Expression
@@ -78,13 +62,7 @@ class Addition : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Addl("ecx", "eax"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Subtraction : public Expression
@@ -97,13 +75,7 @@ class Subtraction : public Expression
                 std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expR->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expL->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Subl("ecx", "eax"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Multiplication : public Expression
@@ -116,13 +88,7 @@ class Multiplication : public Expression
                    std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Imul("ecx", "eax"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Division : public Expression
@@ -135,14 +101,7 @@ class Division : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expR->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expL->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cdq());
-        insts.emplace_back(new Idivl("ecx"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Less : public Expression
@@ -155,15 +114,7 @@ class Less : public Expression
          std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cmpl("ecx", "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setl("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Greater : public Expression
@@ -176,15 +127,7 @@ class Greater : public Expression
             std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cmpl("ecx", "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setg("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class LessEqual : public Expression
@@ -197,15 +140,7 @@ class LessEqual : public Expression
               std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cmpl("ecx", "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setle("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class GreaterEqual : public Expression
@@ -218,15 +153,7 @@ class GreaterEqual : public Expression
                  std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cmpl("ecx", "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setge("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Equal : public Expression
@@ -239,15 +166,7 @@ class Equal : public Expression
           std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cmpl("ecx", "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Sete("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class LogicalAnd : public Expression
@@ -260,21 +179,7 @@ class LogicalAnd : public Expression
                std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        std::string clause2 = labelMaker();
-        std::string end = labelMaker();
-
-        expL->assemble(insts);
-        insts.emplace_back(new Cmpl(0, "eax"));
-        insts.emplace_back(new Jne(clause2));
-        insts.emplace_back(new Jmp(end));
-        insts.emplace_back(new Tag(clause2));
-        expR->assemble(insts);
-        insts.emplace_back(new Cmpl(0, "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setne("al"));
-        insts.emplace_back(new Tag(end));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class LogicalOr : public Expression
@@ -287,22 +192,7 @@ class LogicalOr : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        std::string clause2 = labelMaker();
-        std::string end = labelMaker();
-
-        expL->assemble(insts);
-        insts.emplace_back(new Cmpl(0, "eax"));
-        insts.emplace_back(new Je(clause2));
-        insts.emplace_back(new Movl(1, "eax"));
-        insts.emplace_back(new Jmp(end));
-        insts.emplace_back(new Tag(clause2));
-        expR->assemble(insts);
-        insts.emplace_back(new Cmpl(0, "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setne("al"));
-        insts.emplace_back(new Tag(end));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class NotEqual : public Expression
@@ -315,15 +205,7 @@ class NotEqual : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-        expL->assemble(insts);
-        insts.emplace_back(new Push("eax"));
-        expR->assemble(insts);
-        insts.emplace_back(new Pop("ecx"));
-        insts.emplace_back(new Cmpl("ecx", "eax"));
-        insts.emplace_back(new Movl(0, "eax"));
-        insts.emplace_back(new Setne("al"));
-    }
+    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
 };
 
 class Assignment : public Expression
