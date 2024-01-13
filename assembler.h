@@ -11,7 +11,7 @@ class Assembler
 {
   private:
   public:
-    std::vector<std::shared_ptr<Instruction>> output;
+    std::vector<std::string> output;
 
     Assembler(){}
     void run(Program&);

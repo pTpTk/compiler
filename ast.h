@@ -6,6 +6,7 @@
 
 #include "token.h"
 #include "asm.h"
+#include "variable_map.h"
 #include "ast_function.h"
 #include "ast_statement.h"
 #include "ast_expression.h"

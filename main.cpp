@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     assembler.run(parser.prog);
 
     for(auto& v : assembler.output) {
-        v->print();
+        std::cout << v;
     }
 
     return 0;

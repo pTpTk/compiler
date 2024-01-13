@@ -7,10 +7,10 @@ Function::print() {
 }
 
 void 
-Function::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-    insts.emplace_back(new FuncName(name));
-    insts.emplace_back(new Push("ebp"));
-    insts.emplace_back(new Movl("esp", "ebp"));
+Function::assemble(std::vector<std::string>& insts) {
+    insts.emplace_back(FUNCNAME(name));
+    insts.emplace_back(PUSH(%ebp));
+    insts.emplace_back(MOVL1(%esp, %ebp));
     for(auto stmt : statements) {
         stmt->assemble(insts);
     }
@@ -24,15 +24,21 @@ Return::print() {
 }
 
 void
-Return::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Return::assemble(std::vector<std::string>& insts) {
     exp->assemble(insts);
-    insts.emplace_back(new Movl("ebp", "esp"));
-    insts.emplace_back(new Pop("ebp"));
-    insts.emplace_back(new Ret);
+    insts.emplace_back(MOVL1(%ebp, %esp));
+    insts.emplace_back(POP(%ebp));
+    insts.emplace_back(RET());
 }
 // Return
 
 // Declare
+Declare::Declare(VariableMap& _vmap, std::string _varName)
+: varName(_varName), vmap(_vmap) { vmap.push(varName); }
+
+Declare::Declare(VariableMap& _vmap, std::string _varName, std::shared_ptr<Expression> _exp)
+: varName(_varName), exp(_exp), vmap(_vmap) { vmap.push(varName); }
+
 void
 Declare::print() {
     printf("Declaration: int %s\n", varName.c_str());
@@ -40,165 +46,172 @@ Declare::print() {
 // Declare
 
 void
-Constant::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
-    insts.emplace_back(new Movl(val, "eax"));
+Constant::assemble(std::vector<std::string>& insts) {
+    insts.emplace_back(MOVL2(val, %eax));
 }
 
 void 
-Negation::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Negation::assemble(std::vector<std::string>& insts) {
     exp->assemble(insts);
-    insts.emplace_back(new Neg("eax"));
+    insts.emplace_back(NEG(%eax));
 }
 
 void
-BitwiseComplement::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+BitwiseComplement::assemble(std::vector<std::string>& insts) {
     exp->assemble(insts);
-    insts.emplace_back(new Not("eax"));
+    insts.emplace_back(NOT(%eax));
 }
 
 void
-LogicalNegation::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+LogicalNegation::assemble(std::vector<std::string>& insts) {
     exp->assemble(insts);
 
-    insts.emplace_back(new Cmpl(0, "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Sete("al"));
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETE(%al));
 }
 
 void
-Addition::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Addition::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Addl("ecx", "eax"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(ADDL(%ecx, %eax));
 }
 
 void
-Subtraction::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Subtraction::assemble(std::vector<std::string>& insts) {
     expR->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expL->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Subl("ecx", "eax"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(SUBL(%ecx, %eax));
 }
 
 void 
-Multiplication::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Multiplication::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Imul("ecx", "eax"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(IMUL(%ecx, %eax));
 }
 
 void
-Division::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Division::assemble(std::vector<std::string>& insts) {
     expR->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expL->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cdq());
-    insts.emplace_back(new Idivl("ecx"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CDQ());
+    insts.emplace_back(IDIVL(%ecx));
 }
 
 void
-Less::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Less::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cmpl("ecx", "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setl("al"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETL(%al));
 }
 
 void
-Greater::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Greater::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cmpl("ecx", "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setg("al"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETG(%al));
 }
 
 void
-LessEqual::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+LessEqual::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cmpl("ecx", "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setle("al"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETLE(%al));
 }
 
 void 
-GreaterEqual::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+GreaterEqual::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cmpl("ecx", "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setge("al"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETGE(%al));
 }
 
 void 
-Equal::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+Equal::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cmpl("ecx", "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Sete("al"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETE(%al));
 }
 
 void 
-LogicalAnd::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+LogicalAnd::assemble(std::vector<std::string>& insts) {
     std::string clause2 = labelMaker();
     std::string end = labelMaker();
 
     expL->assemble(insts);
-    insts.emplace_back(new Cmpl(0, "eax"));
-    insts.emplace_back(new Jne(clause2));
-    insts.emplace_back(new Jmp(end));
-    insts.emplace_back(new Tag(clause2));
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JNE(clause2));
+    insts.emplace_back(JMP(end));
+    insts.emplace_back(TAG(clause2));
     expR->assemble(insts);
-    insts.emplace_back(new Cmpl(0, "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setne("al"));
-    insts.emplace_back(new Tag(end));
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETNE(%al));
+    insts.emplace_back(TAG(end));
 }
 
 void
-LogicalOr::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+LogicalOr::assemble(std::vector<std::string>& insts) {
     std::string clause2 = labelMaker();
     std::string end = labelMaker();
 
     expL->assemble(insts);
-    insts.emplace_back(new Cmpl(0, "eax"));
-    insts.emplace_back(new Je(clause2));
-    insts.emplace_back(new Movl(1, "eax"));
-    insts.emplace_back(new Jmp(end));
-    insts.emplace_back(new Tag(clause2));
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JE(clause2));
+    insts.emplace_back(MOVL1($1, %eax));
+    insts.emplace_back(JMP(end));
+    insts.emplace_back(TAG(clause2));
     expR->assemble(insts);
-    insts.emplace_back(new Cmpl(0, "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setne("al"));
-    insts.emplace_back(new Tag(end));
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETNE(%al));
+    insts.emplace_back(TAG(end));
 }
 
 void
-NotEqual::assemble(std::vector<std::shared_ptr<Instruction>>& insts) {
+NotEqual::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(new Push("eax"));
+    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
-    insts.emplace_back(new Pop("ecx"));
-    insts.emplace_back(new Cmpl("ecx", "eax"));
-    insts.emplace_back(new Movl(0, "eax"));
-    insts.emplace_back(new Setne("al"));
+    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(MOVL1($0, %eax));
+    insts.emplace_back(SETNE(%al));
+}
+
+void
+Assignment::assemble(std::vector<std::string>& insts) {
+    int index = vmap.lookup(name);
+    exp->assemble(insts);
+    // insts.emplace_back(new );
 }

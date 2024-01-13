@@ -54,9 +54,9 @@ Parser::parseStmt(std::list<Token>& tokens) {
             tokens.pop_front();
             
             if(tokens.front().type == Type::symbol_semicolon)
-                ret = std::make_shared<Declare>(varName);
+                ret = std::make_shared<Declare>(prog.function->vmap, varName);
             else
-                ret = std::make_shared<Declare>(varName, parseExpr(tokens));
+                ret = std::make_shared<Declare>(prog.function->vmap, varName, parseExpr(tokens));
             break;
         }
         default:
@@ -86,7 +86,7 @@ Parser::parseExpr(std::list<Token>& tokens) {
         tokens.pop_front();
 
         auto val = parseLOr(tokens);
-        ret = std::make_shared<Assignment>(varName, val);
+        ret = std::make_shared<Assignment>(prog.function->vmap, varName, val);
     }
     else
         ret = parseLOr(tokens);

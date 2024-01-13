@@ -4,12 +4,14 @@
 #include <string>
 #include <memory>
 
+#include "variable_map.h"
+
 class Instruction;
 
 class Expression
 {
   public:
-    virtual void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {}
+    virtual void assemble(std::vector<std::string>& insts) {}
 };
 
 class Constant : public Expression
@@ -19,7 +21,7 @@ class Constant : public Expression
   public:
     Constant(long _val) : val(_val) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Negation : public Expression
@@ -29,7 +31,7 @@ class Negation : public Expression
   public:
     Negation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class BitwiseComplement : public Expression
@@ -39,7 +41,7 @@ class BitwiseComplement : public Expression
   public:
     BitwiseComplement(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class LogicalNegation : public Expression
@@ -49,7 +51,7 @@ class LogicalNegation : public Expression
   public:
     LogicalNegation(std::shared_ptr<Expression> _exp) : exp(_exp) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Addition : public Expression
@@ -62,7 +64,7 @@ class Addition : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Subtraction : public Expression
@@ -75,7 +77,7 @@ class Subtraction : public Expression
                 std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Multiplication : public Expression
@@ -88,7 +90,7 @@ class Multiplication : public Expression
                    std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Division : public Expression
@@ -101,7 +103,7 @@ class Division : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Less : public Expression
@@ -114,7 +116,7 @@ class Less : public Expression
          std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Greater : public Expression
@@ -127,7 +129,7 @@ class Greater : public Expression
             std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class LessEqual : public Expression
@@ -140,7 +142,7 @@ class LessEqual : public Expression
               std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class GreaterEqual : public Expression
@@ -153,7 +155,7 @@ class GreaterEqual : public Expression
                  std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Equal : public Expression
@@ -166,7 +168,7 @@ class Equal : public Expression
           std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class LogicalAnd : public Expression
@@ -179,7 +181,7 @@ class LogicalAnd : public Expression
                std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class LogicalOr : public Expression
@@ -192,7 +194,7 @@ class LogicalOr : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class NotEqual : public Expression
@@ -205,7 +207,7 @@ class NotEqual : public Expression
              std::shared_ptr<Expression> _expR) 
     : expL(_expL), expR(_expR) {}
 
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Assignment : public Expression
@@ -213,10 +215,13 @@ class Assignment : public Expression
   private:
     std::string name;
     std::shared_ptr<Expression> exp;
+    VariableMap& vmap;
   public:
-    Assignment(std::string _name,
+    Assignment(VariableMap& _vmap, std::string _name,
                std::shared_ptr<Expression> _exp) 
-    : name(_name), exp(_exp) {}
+    : vmap(_vmap), name(_name), exp(_exp) {}
+
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Variable : public Expression

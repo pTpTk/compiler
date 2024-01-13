@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "token.h"
+#include "variable_map.h"
 
 class Instruction;
 class Expression;
@@ -13,7 +14,7 @@ class Expression;
 class Statement
 {
   public:
-    virtual void assemble(std::vector<std::shared_ptr<Instruction>>& insts) {}
+    virtual void assemble(std::vector<std::string>& insts) {}
     virtual void print() {}
 };
 
@@ -26,7 +27,7 @@ class Return : public Statement
     Return(std::shared_ptr<Expression> _exp): exp(_exp) {}
 
     void print();
-    void assemble(std::vector<std::shared_ptr<Instruction>>& insts);
+    void assemble(std::vector<std::string>& insts);
 };
 
 class Declare : public Statement
@@ -34,10 +35,10 @@ class Declare : public Statement
   public:
     std::string varName;
     std::shared_ptr<Expression> exp;
+    VariableMap& vmap;
 
-    Declare(std::string _varName) : varName(_varName) {}
-    Declare(std::string _varName, std::shared_ptr<Expression> _exp)
-    : varName(_varName), exp(_exp) {}
+    Declare(VariableMap& _vmap, std::string _varName);
+    Declare(VariableMap& _vmap, std::string _varName, std::shared_ptr<Expression> _exp);
 
     void print();
 };
