@@ -16,6 +16,12 @@ Function::assemble(std::vector<std::string>& insts) {
     for(auto stmt : statements) {
         stmt->assemble(insts);
     }
+    if(insts.back() != RET()) {
+        insts.emplace_back(MOVL1($0, %eax));
+        insts.emplace_back(MOVL1(%ebp, %esp));
+        insts.emplace_back(POP(%ebp));
+        insts.emplace_back(RET());
+    }
 }
 // Function
 
@@ -56,6 +62,11 @@ Declare::assemble(std::vector<std::string>& insts) {
     }
 }
 // Declare
+
+void
+ExprStmt::assemble(std::vector<std::string>& insts) {
+    exp->assemble(insts);
+}
 
 void
 Constant::assemble(std::vector<std::string>& insts) {

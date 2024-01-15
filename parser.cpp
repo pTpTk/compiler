@@ -8,6 +8,8 @@ Parser::run(std::list<Token>& tokens) {
 
 std::shared_ptr<Function>
 Parser::parseFunc(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Function> ret(new Function());
     prog.vmap = ret->vmap;
 
@@ -39,6 +41,8 @@ Parser::parseFunc(std::list<Token>& tokens) {
 
 std::shared_ptr<Statement>
 Parser::parseStmt(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Statement> ret;
     assert(!tokens.empty());
 
@@ -56,8 +60,11 @@ Parser::parseStmt(std::list<Token>& tokens) {
             
             if(tokens.front().type == Type::symbol_semicolon)
                 ret = std::make_shared<Declare>(prog.vmap, varName);
-            else
+            else {
+                TOKEN_EXPECT(Type::symbol_assign);
+                tokens.pop_front();
                 ret = std::make_shared<Declare>(prog.vmap, varName, parseExpr(tokens));
+            }
             break;
         }
         default:
@@ -75,6 +82,8 @@ Parser::parseStmt(std::list<Token>& tokens) {
 // <exp> ::= <id> "=" <exp> | <logical-or-exp>
 std::shared_ptr<Expression>
 Parser::parseExpr(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -91,7 +100,7 @@ Parser::parseExpr(std::list<Token>& tokens) {
         TOKEN_EXPECT(Type::symbol_assign);
         tokens.pop_front();
 
-        auto val = parseLOr(tokens);
+        auto val = parseExpr(tokens);
         ret = std::make_shared<Assignment>(prog.vmap, varName, val);
     }
     else {
@@ -105,6 +114,8 @@ Parser::parseExpr(std::list<Token>& tokens) {
 // <logical-or-exp> ::= <logical-and-exp> { "||" <logical-and-exp> }
 std::shared_ptr<Expression>
 Parser::parseLOr(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -125,6 +136,8 @@ Parser::parseLOr(std::list<Token>& tokens) {
 // <logical-and-exp> ::= <equality-exp> { "&&" <equality-exp> }
 std::shared_ptr<Expression>
 Parser::parseLAnd(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -145,6 +158,8 @@ Parser::parseLAnd(std::list<Token>& tokens) {
 // <equality-exp> ::= <relational-exp> { ("!=" | "==") <relational-exp> }
 std::shared_ptr<Expression>
 Parser::parseEquality(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -179,6 +194,8 @@ Parser::parseEquality(std::list<Token>& tokens) {
 // <relational-exp> ::= <additive-exp> { ("<" | ">" | "<=" | ">=") <additive-exp> }
 std::shared_ptr<Expression>
 Parser::parseRelational(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -229,6 +246,8 @@ Parser::parseRelational(std::list<Token>& tokens) {
 // <additive-exp> ::= <term> { ("+" | "-") <term> }
 std::shared_ptr<Expression>
 Parser::parseAdditive(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -263,6 +282,8 @@ Parser::parseAdditive(std::list<Token>& tokens) {
 // <term> ::= <factor> { ("*" | "/") <factor> }
 std::shared_ptr<Expression>
 Parser::parseTerm(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -297,6 +318,8 @@ Parser::parseTerm(std::list<Token>& tokens) {
 // <factor> ::= "(" <exp> ")" | <unary_op> <factor> | <int> | <id>
 std::shared_ptr<Expression>
 Parser::parseFactor(std::list<Token>& tokens) {
+    DEBUG();
+
     std::shared_ptr<Expression> ret;
 
     assert(!tokens.empty());
@@ -344,7 +367,7 @@ Parser::parseFactor(std::list<Token>& tokens) {
 
     std::cout << "syntax err, unrecognized token \"";
     tokens.front().print();
-    std::cout << " \"" << std::endl;
+    std::cout << "\"" << std::endl;
 
     assert(false);
 }

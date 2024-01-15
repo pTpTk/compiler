@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 
+#include "util.h"
 #include "token.h"
 #include "ast.h"
 

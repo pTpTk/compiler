@@ -50,4 +50,6 @@ class ExprStmt : public Statement
     std::shared_ptr<Expression> exp;
     ExprStmt(std::shared_ptr<Expression> _exp)
     : exp(_exp) {}
+
+    void assemble(std::vector<std::string>& insts);
 };

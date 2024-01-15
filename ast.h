@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 
+#include "util.h"
 #include "token.h"
 #include "asm.h"
 #include "variable_map.h"
