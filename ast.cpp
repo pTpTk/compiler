@@ -1,6 +1,8 @@
 #include "ast.h"
 
 // Function
+Function::Function() : vmap(new VariableMap) {}
+
 void
 Function::print() {
     printf("Function: Name: %s\n", name.c_str());
@@ -33,15 +35,25 @@ Return::assemble(std::vector<std::string>& insts) {
 // Return
 
 // Declare
-Declare::Declare(VariableMap& _vmap, std::string _varName)
-: varName(_varName), vmap(_vmap) { vmap.push(varName); }
+Declare::Declare(std::shared_ptr<VariableMap> _vmap, std::string _name)
+: name(_name), vmap(_vmap) { vmap->push(name); }
 
-Declare::Declare(VariableMap& _vmap, std::string _varName, std::shared_ptr<Expression> _exp)
-: varName(_varName), exp(_exp), vmap(_vmap) { vmap.push(varName); }
+Declare::Declare(std::shared_ptr<VariableMap> _vmap, std::string _name, std::shared_ptr<Expression> _exp)
+: name(_name), exp(_exp), vmap(_vmap) { 
+    vmap->push(name);
+    exp = std::make_shared<Assignment>(vmap, name, exp);
+}
 
 void
 Declare::print() {
-    printf("Declaration: int %s\n", varName.c_str());
+    printf("Declaration: int %s\n", name.c_str());
+}
+
+void
+Declare::assemble(std::vector<std::string>& insts) {
+    if(exp.get() != nullptr) {
+        exp->assemble(insts);
+    }
 }
 // Declare
 
@@ -211,7 +223,13 @@ NotEqual::assemble(std::vector<std::string>& insts) {
 
 void
 Assignment::assemble(std::vector<std::string>& insts) {
-    int index = vmap.lookup(name);
+    int index = vmap->lookup(name);
     exp->assemble(insts);
-    // insts.emplace_back(new );
+    insts.emplace_back(MOVL3(%eax, index, %ebp));
+}
+
+void
+Variable::assemble(std::vector<std::string>& insts) {
+    int index = vmap->lookup(name);
+    insts.emplace_back(MOVL4(index, %ebp, %eax));
 }

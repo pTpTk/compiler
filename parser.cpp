@@ -9,6 +9,7 @@ Parser::run(std::list<Token>& tokens) {
 std::shared_ptr<Function>
 Parser::parseFunc(std::list<Token>& tokens) {
     std::shared_ptr<Function> ret(new Function());
+    prog.vmap = ret->vmap;
 
     TOKEN_EXPECT(Type::keyword_int);
     ret->returnType = Type::keyword_int;
@@ -54,9 +55,9 @@ Parser::parseStmt(std::list<Token>& tokens) {
             tokens.pop_front();
             
             if(tokens.front().type == Type::symbol_semicolon)
-                ret = std::make_shared<Declare>(prog.function->vmap, varName);
+                ret = std::make_shared<Declare>(prog.vmap, varName);
             else
-                ret = std::make_shared<Declare>(prog.function->vmap, varName, parseExpr(tokens));
+                ret = std::make_shared<Declare>(prog.vmap, varName, parseExpr(tokens));
             break;
         }
         default:
@@ -78,7 +79,12 @@ Parser::parseExpr(std::list<Token>& tokens) {
 
     assert(!tokens.empty());
 
-    if(tokens.front().type == Type::identifier) {
+    auto tokenIter = tokens.begin();
+
+    if(tokenIter->type == Type::identifier && 
+        (++tokenIter)->type == Type::symbol_assign) {
+
+        --tokenIter;
         std::string varName = *(std::string*)tokens.front().val;
         tokens.pop_front();
 
@@ -86,10 +92,12 @@ Parser::parseExpr(std::list<Token>& tokens) {
         tokens.pop_front();
 
         auto val = parseLOr(tokens);
-        ret = std::make_shared<Assignment>(prog.function->vmap, varName, val);
+        ret = std::make_shared<Assignment>(prog.vmap, varName, val);
     }
-    else
+    else {
+        --tokenIter;
         ret = parseLOr(tokens);
+    }
 
     return ret;
 }
@@ -286,7 +294,7 @@ Parser::parseTerm(std::list<Token>& tokens) {
     return ret;
 }
 
-// <factor> ::= "(" <exp> ")" | <unary_op> <factor> | <int>
+// <factor> ::= "(" <exp> ")" | <unary_op> <factor> | <int> | <id>
 std::shared_ptr<Expression>
 Parser::parseFactor(std::list<Token>& tokens) {
     std::shared_ptr<Expression> ret;
@@ -324,6 +332,13 @@ Parser::parseFactor(std::list<Token>& tokens) {
     if(tokens.front().type == Type::symbol_logical_negation) {
         tokens.pop_front();
         ret = std::make_shared<LogicalNegation>(parseFactor(tokens));
+        return ret;
+    }
+
+    if(tokens.front().type == Type::identifier) {
+        auto name = *(std::string*) tokens.front().val;
+        tokens.pop_front();
+        ret = std::make_shared<Variable>(prog.vmap, name);
         return ret;
     }
 

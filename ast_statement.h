@@ -33,14 +33,15 @@ class Return : public Statement
 class Declare : public Statement
 {
   public:
-    std::string varName;
+    std::string name;
     std::shared_ptr<Expression> exp;
-    VariableMap& vmap;
+    std::shared_ptr<VariableMap> vmap;
 
-    Declare(VariableMap& _vmap, std::string _varName);
-    Declare(VariableMap& _vmap, std::string _varName, std::shared_ptr<Expression> _exp);
+    Declare(std::shared_ptr<VariableMap> _vmap, std::string _name);
+    Declare(std::shared_ptr<VariableMap> _vmap, std::string _name, std::shared_ptr<Expression> _exp);
 
     void print();
+    void assemble(std::vector<std::string>& insts);
 };
 
 class ExprStmt : public Statement

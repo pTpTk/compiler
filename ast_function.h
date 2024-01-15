@@ -18,8 +18,9 @@ class Function
     std::string name;
     // need function params
     std::vector<std::shared_ptr<Statement>> statements;
-    VariableMap vmap;
+    std::shared_ptr<VariableMap> vmap;
 
+    Function();
     void print();
     void assemble(std::vector<std::string>& insts);
 };

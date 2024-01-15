@@ -15,4 +15,5 @@ class Program
 {
   public:
     std::shared_ptr<Function> function;
+    std::shared_ptr<VariableMap> vmap;
 };
