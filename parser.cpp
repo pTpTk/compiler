@@ -31,11 +31,40 @@ Parser::parseFunc(std::list<Token>& tokens) {
     tokens.pop_front();
 
     while(tokens.front().type != Type::symbol_brace_r)
-        ret->statements.emplace_back(parseStmt(tokens));
+        ret->statements.emplace_back(parseBlock(tokens));
 
     TOKEN_EXPECT(Type::symbol_brace_r);
     tokens.pop_front();
 
+    return ret;
+}
+
+std::shared_ptr<Statement>
+Parser::parseBlock(std::list<Token>& tokens) {
+    DEBUG();
+
+    std::shared_ptr<Statement> ret;
+    assert(!tokens.empty());
+
+    if(tokens.front().type == Type::keyword_int) {
+        tokens.pop_front();
+        TOKEN_EXPECT(Type::identifier);
+        std::string varName = *(std::string*)tokens.front().val;
+        tokens.pop_front();
+        
+        if(tokens.front().type == Type::symbol_semicolon)
+            ret = std::make_shared<Declare>(prog.vmap, varName);
+        else {
+            TOKEN_EXPECT(Type::symbol_assign);
+            tokens.pop_front();
+            ret = std::make_shared<Declare>(prog.vmap, varName, parseExpr(tokens));
+        }
+        TOKEN_EXPECT(Type::symbol_semicolon);
+        tokens.pop_front();
+        return ret;
+    }
+
+    ret = parseStmt(tokens);
     return ret;
 }
 
@@ -51,21 +80,23 @@ Parser::parseStmt(std::list<Token>& tokens) {
             tokens.pop_front();
             ret = std::make_shared<Return>(parseExpr(tokens));
             break;
-        case Type::keyword_int:
+        case Type::keyword_if:
         {
             tokens.pop_front();
-            TOKEN_EXPECT(Type::identifier);
-            std::string varName = *(std::string*)tokens.front().val;
+            TOKEN_EXPECT(Type::symbol_parenthesis_l);
             tokens.pop_front();
-            
-            if(tokens.front().type == Type::symbol_semicolon)
-                ret = std::make_shared<Declare>(prog.vmap, varName);
-            else {
-                TOKEN_EXPECT(Type::symbol_assign);
+            auto condition = parseExpr(tokens);
+            TOKEN_EXPECT(Type::symbol_parenthesis_r);
+            tokens.pop_front();
+            auto ifStmt = parseStmt(tokens);
+            if(tokens.front().type == Type::keyword_else) {
                 tokens.pop_front();
-                ret = std::make_shared<Declare>(prog.vmap, varName, parseExpr(tokens));
+                auto elseStmt = parseStmt(tokens);
+                ret = std::make_shared<If>(condition, ifStmt, elseStmt);
+            } else {
+                ret = std::make_shared<If>(condition, ifStmt);
             }
-            break;
+            return ret;
         }
         default:
         {
@@ -79,7 +110,7 @@ Parser::parseStmt(std::list<Token>& tokens) {
     return ret;
 }
 
-// <exp> ::= <id> "=" <exp> | <logical-or-exp>
+// <exp> ::= <id> "=" <exp> | <conditional-exp>
 std::shared_ptr<Expression>
 Parser::parseExpr(std::list<Token>& tokens) {
     DEBUG();
@@ -105,7 +136,30 @@ Parser::parseExpr(std::list<Token>& tokens) {
     }
     else {
         --tokenIter;
-        ret = parseLOr(tokens);
+        ret = parseConditional(tokens);
+    }
+
+    return ret;
+}
+
+// <conditional-exp> ::= <logical-or-exp> [ "?" <exp> ":" <conditional-exp> ]
+std::shared_ptr<Expression>
+Parser::parseConditional(std::list<Token>& tokens) {
+    DEBUG();
+
+    std::shared_ptr<Expression> ret;
+
+    assert(!tokens.empty());
+    
+    ret = parseLOr(tokens);
+
+    if(tokens.front().type == Type::symbol_question_mark) {
+        tokens.pop_front();
+        auto e2 = parseExpr(tokens);
+        TOKEN_EXPECT(Type::symbol_colon);
+        tokens.pop_front();
+        auto e3 = parseConditional(tokens);
+        ret = std::make_shared<Conditional>(ret, e2, e3);
     }
 
     return ret;

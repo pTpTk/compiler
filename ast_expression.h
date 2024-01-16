@@ -235,3 +235,19 @@ class Variable : public Expression
 
     void assemble(std::vector<std::string>& insts);
 };
+
+// e1 ? e2 : e3
+class Conditional : public Expression
+{
+  private:
+    std::shared_ptr<Expression> e1;
+    std::shared_ptr<Expression> e2;
+    std::shared_ptr<Expression> e3;
+  public:
+    Conditional(std::shared_ptr<Expression> _e1,
+                std::shared_ptr<Expression> _e2,
+                std::shared_ptr<Expression> _e3)
+    : e1(_e1), e2(_e2), e3(_e3) {}
+
+    void assemble(std::vector<std::string>& insts);
+};

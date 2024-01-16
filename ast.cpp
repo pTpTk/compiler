@@ -69,6 +69,32 @@ ExprStmt::assemble(std::vector<std::string>& insts) {
 }
 
 void
+If::assemble(std::vector<std::string>& insts) {
+    if(elseStmt.get() != nullptr) {
+        std::string elseL = labelMaker();
+        std::string end = labelMaker();
+
+        condition->assemble(insts);
+        insts.emplace_back(CMPL($0, %eax));
+        insts.emplace_back(JE(elseL));
+        ifStmt->assemble(insts);
+        insts.emplace_back(JMP(end));
+        insts.emplace_back(TAG(elseL));
+        elseStmt->assemble(insts);
+        insts.emplace_back(TAG(end));
+    }
+    else {
+        std::string end = labelMaker();
+
+        condition->assemble(insts);
+        insts.emplace_back(CMPL($0, %eax));
+        insts.emplace_back(JE(end));
+        ifStmt->assemble(insts);
+        insts.emplace_back(TAG(end));
+    }
+}
+
+void
 Constant::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(MOVL2(val, %eax));
 }
@@ -243,4 +269,19 @@ void
 Variable::assemble(std::vector<std::string>& insts) {
     int index = vmap->lookup(name);
     insts.emplace_back(MOVL4(index, %ebp, %eax));
+}
+
+void
+Conditional::assemble(std::vector<std::string>& insts) {
+    std::string l3 = labelMaker();
+    std::string end = labelMaker();
+
+    e1->assemble(insts);
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JE(l3));
+    e2->assemble(insts);
+    insts.emplace_back(JMP(end));
+    insts.emplace_back(TAG(l3));
+    e3->assemble(insts);
+    insts.emplace_back(TAG(end));
 }

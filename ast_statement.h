@@ -53,3 +53,22 @@ class ExprStmt : public Statement
 
     void assemble(std::vector<std::string>& insts);
 };
+
+class If : public Statement
+{
+  public:
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<Statement> ifStmt;
+    std::shared_ptr<Statement> elseStmt;
+
+    If(std::shared_ptr<Expression> _cond,
+       std::shared_ptr<Statement> _if,
+       std::shared_ptr<Statement> _else)
+    : condition(_cond), ifStmt(_if), elseStmt(_else) {}
+
+    If(std::shared_ptr<Expression> _cond,
+       std::shared_ptr<Statement> _if)
+    : condition(_cond), ifStmt(_if) {}
+
+    void assemble(std::vector<std::string>& insts);
+};

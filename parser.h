@@ -26,8 +26,10 @@ class Parser
 {
   private:
     std::shared_ptr<Function>   parseFunc(std::list<Token>&);
+    std::shared_ptr<Statement>  parseBlock(std::list<Token>&);
     std::shared_ptr<Statement>  parseStmt(std::list<Token>&);
     std::shared_ptr<Expression> parseExpr(std::list<Token>&);
+    std::shared_ptr<Expression> parseConditional(std::list<Token>&);
     std::shared_ptr<Expression> parseLOr(std::list<Token>&);
     std::shared_ptr<Expression> parseLAnd(std::list<Token>&);
     std::shared_ptr<Expression> parseEquality(std::list<Token>&);
