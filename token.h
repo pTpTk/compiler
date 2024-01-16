@@ -28,9 +28,13 @@ enum class Type
     symbol_less_equal,
     symbol_greater,
     symbol_greater_equal,
+    symbol_colon,
+    symbol_question_mark,
 
     keyword_int,
     keyword_return,
+    keyword_if,
+    keyword_else,
 
     identifier,
     integer
@@ -118,11 +122,23 @@ class Token
             case Type::symbol_greater_equal:
                 printf(">=");
                 break;
+            case Type::symbol_colon:
+                printf(":");
+                break;
+            case Type::symbol_question_mark:
+                printf("?");
+                break;
             case Type::keyword_int:
                 printf("int");
                 break;
             case Type::keyword_return:
                 printf("return");
+                break;
+            case Type::keyword_if:
+                printf("if");
+                break;
+            case Type::keyword_else:
+                printf("else");
                 break;
             case Type::identifier:
             {

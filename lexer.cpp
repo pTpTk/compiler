@@ -97,6 +97,10 @@ void Lexer::run(char* filename) {
                     }
                     PUSH_TOKEN(Type::symbol_greater);
                 }
+                case ':':
+                    PUSH_TOKEN(Type::symbol_colon);
+                case '?':
+                    PUSH_TOKEN(Type::symbol_question_mark);
 
                 // identifier
                 case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i':
@@ -122,6 +126,18 @@ void Lexer::run(char* filename) {
 
                     if(*idfrPtr == "return") {
                         tokens.emplace_back(Type::keyword_return);
+                        delete idfrPtr;
+                        break;
+                    }
+
+                    if(*idfrPtr == "if") {
+                        tokens.emplace_back(Type::keyword_if);
+                        delete idfrPtr;
+                        break;
+                    }
+
+                    if(*idfrPtr == "else") {
+                        tokens.emplace_back(Type::keyword_else);
                         delete idfrPtr;
                         break;
                     }
