@@ -42,13 +42,10 @@ Return::assemble(std::vector<std::string>& insts) {
 
 // Declare
 Declare::Declare(std::shared_ptr<VariableMap> _vmap, std::string _name)
-: name(_name), vmap(_vmap) { vmap->push(name); }
+: name(_name), vmap(_vmap) {}
 
 Declare::Declare(std::shared_ptr<VariableMap> _vmap, std::string _name, std::shared_ptr<Expression> _exp)
-: name(_name), exp(_exp), vmap(_vmap) { 
-    vmap->push(name);
-    exp = std::make_shared<Assignment>(vmap, name, exp);
-}
+: name(_name), exp(_exp), vmap(_vmap) {}
 
 void
 Declare::print() {
@@ -57,9 +54,11 @@ Declare::print() {
 
 void
 Declare::assemble(std::vector<std::string>& insts) {
+    vmap->push(name);
     if(exp.get() != nullptr) {
         exp->assemble(insts);
     }
+    insts.emplace_back(PUSH(%eax));
 }
 // Declare
 
@@ -131,9 +130,9 @@ Addition::assemble(std::vector<std::string>& insts) {
 
 void
 Subtraction::assemble(std::vector<std::string>& insts) {
-    expR->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
     expL->assemble(insts);
+    insts.emplace_back(PUSH(%eax));
+    expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
     insts.emplace_back(SUBL(%ecx, %eax));
 }
@@ -163,7 +162,7 @@ Less::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
-    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETL(%al));
 }
@@ -174,7 +173,7 @@ Greater::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
-    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETG(%al));
 }
@@ -185,7 +184,7 @@ LessEqual::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
-    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETLE(%al));
 }
@@ -196,7 +195,7 @@ GreaterEqual::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
-    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETGE(%al));
 }
@@ -207,7 +206,7 @@ Equal::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
-    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETE(%al));
 }
@@ -253,7 +252,7 @@ NotEqual::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
     insts.emplace_back(POP(%ecx));
-    insts.emplace_back(CMPL(%ecx, %eax));
+    insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETNE(%al));
 }

@@ -383,6 +383,7 @@ Parser::parseFactor(std::list<Token>& tokens) {
         tokens.pop_front();
         ret = parseExpr(tokens);
         TOKEN_EXPECT(Type::symbol_parenthesis_r);
+        tokens.pop_front();
         return ret;
     }
 
