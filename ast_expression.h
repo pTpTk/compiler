@@ -215,9 +215,9 @@ class Assignment : public Expression
   private:
     std::string name;
     std::shared_ptr<Expression> exp;
-    std::shared_ptr<VariableMap> vmap;
+    VariableStack vmap;
   public:
-    Assignment(std::shared_ptr<VariableMap> _vmap, std::string _name,
+    Assignment(VariableStack _vmap, std::string _name,
                std::shared_ptr<Expression> _exp) 
     : vmap(_vmap), name(_name), exp(_exp) {}
 
@@ -228,9 +228,9 @@ class Variable : public Expression
 {
   private:
     std::string name;
-    std::shared_ptr<VariableMap> vmap;
+    VariableStack vmap;
   public:
-    Variable(std::shared_ptr<VariableMap> _vmap, std::string _name) 
+    Variable(VariableStack _vmap, std::string _name) 
     : vmap(_vmap), name(_name) {}
 
     void assemble(std::vector<std::string>& insts);

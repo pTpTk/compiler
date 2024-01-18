@@ -11,7 +11,6 @@ Parser::parseFunc(std::list<Token>& tokens) {
     DEBUG();
 
     std::shared_ptr<Function> ret(new Function());
-    prog.vmap = ret->vmap;
 
     TOKEN_EXPECT(Type::keyword_int);
     ret->returnType = Type::keyword_int;
@@ -27,20 +26,42 @@ Parser::parseFunc(std::list<Token>& tokens) {
     TOKEN_EXPECT(Type::symbol_parenthesis_r);
     tokens.pop_front();
 
-    TOKEN_EXPECT(Type::symbol_brace_l);
-    tokens.pop_front();
-
-    while(tokens.front().type != Type::symbol_brace_r)
-        ret->statements.emplace_back(parseBlock(tokens));
-
-    TOKEN_EXPECT(Type::symbol_brace_r);
-    tokens.pop_front();
+    ret->block = parseBlock(tokens);
 
     return ret;
 }
 
 std::shared_ptr<Statement>
 Parser::parseBlock(std::list<Token>& tokens) {
+    DEBUG();
+
+    std::shared_ptr<Compound> ret(new Compound());
+    prog.vmap.alloc();
+    ret->vmap = prog.vmap;
+
+    TOKEN_EXPECT(Type::symbol_brace_l);
+    tokens.pop_front();
+
+    auto tokenType = tokens.front().type;
+    while(tokenType != Type::symbol_brace_r) {
+        if(tokenType == Type::symbol_brace_l)
+            ret->statements.emplace_back(parseBlock(tokens));
+        else
+            ret->statements.emplace_back(parseBlockItem(tokens));
+            
+        tokenType = tokens.front().type;
+    }
+
+    TOKEN_EXPECT(Type::symbol_brace_r);
+    tokens.pop_front();
+
+    prog.vmap.dealloc();
+
+    return ret;
+}
+
+std::shared_ptr<Statement>
+Parser::parseBlockItem(std::list<Token>& tokens) {
     DEBUG();
 
     std::shared_ptr<Statement> ret;
@@ -88,10 +109,10 @@ Parser::parseStmt(std::list<Token>& tokens) {
             auto condition = parseExpr(tokens);
             TOKEN_EXPECT(Type::symbol_parenthesis_r);
             tokens.pop_front();
-            auto ifStmt = parseStmt(tokens);
+            auto ifStmt = parseBlock(tokens);
             if(tokens.front().type == Type::keyword_else) {
                 tokens.pop_front();
-                auto elseStmt = parseStmt(tokens);
+                auto elseStmt = parseBlock(tokens);
                 ret = std::make_shared<If>(condition, ifStmt, elseStmt);
             } else {
                 ret = std::make_shared<If>(condition, ifStmt);

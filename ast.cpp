@@ -1,7 +1,7 @@
 #include "ast.h"
 
 // Function
-Function::Function() : vmap(new VariableMap) {}
+Function::Function() {}
 
 void
 Function::print() {
@@ -13,9 +13,8 @@ Function::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(FUNCNAME(name));
     insts.emplace_back(PUSH(%ebp));
     insts.emplace_back(MOVL1(%esp, %ebp));
-    for(auto stmt : statements) {
-        stmt->assemble(insts);
-    }
+    block->assemble(insts);
+    
     if(insts.back() != RET()) {
         insts.emplace_back(MOVL1($0, %eax));
         insts.emplace_back(MOVL1(%ebp, %esp));
@@ -41,11 +40,11 @@ Return::assemble(std::vector<std::string>& insts) {
 // Return
 
 // Declare
-Declare::Declare(std::shared_ptr<VariableMap> _vmap, std::string _name)
-: name(_name), vmap(_vmap) {}
+Declare::Declare(VariableStack _vmap, std::string _name)
+: name(_name), vmap(_vmap) { vmap.push(name); }
 
-Declare::Declare(std::shared_ptr<VariableMap> _vmap, std::string _name, std::shared_ptr<Expression> _exp)
-: name(_name), exp(_exp), vmap(_vmap) {}
+Declare::Declare(VariableStack _vmap, std::string _name, std::shared_ptr<Expression> _exp)
+: name(_name), exp(_exp), vmap(_vmap) { vmap.push(name); }
 
 void
 Declare::print() {
@@ -54,7 +53,6 @@ Declare::print() {
 
 void
 Declare::assemble(std::vector<std::string>& insts) {
-    vmap->push(name);
     if(exp.get() != nullptr) {
         exp->assemble(insts);
     }
@@ -91,6 +89,17 @@ If::assemble(std::vector<std::string>& insts) {
         ifStmt->assemble(insts);
         insts.emplace_back(TAG(end));
     }
+}
+
+void
+Compound::assemble(std::vector<std::string>& insts) {
+    for(auto stmt : statements) {
+        stmt->assemble(insts);
+    }
+
+    int s = vmap.size();
+    if(s && !vmap.first())
+        insts.emplace_back(ADDL2(s, %esp));
 }
 
 void
@@ -259,14 +268,14 @@ NotEqual::assemble(std::vector<std::string>& insts) {
 
 void
 Assignment::assemble(std::vector<std::string>& insts) {
-    int index = vmap->lookup(name);
+    int index = vmap.lookup(name);
     exp->assemble(insts);
     insts.emplace_back(MOVL3(%eax, index, %ebp));
 }
 
 void
 Variable::assemble(std::vector<std::string>& insts) {
-    int index = vmap->lookup(name);
+    int index = vmap.lookup(name);
     insts.emplace_back(MOVL4(index, %ebp, %eax));
 }
 

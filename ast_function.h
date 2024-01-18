@@ -17,8 +17,7 @@ class Function
     Type returnType;
     std::string name;
     // need function params
-    std::vector<std::shared_ptr<Statement>> statements;
-    std::shared_ptr<VariableMap> vmap;
+    std::shared_ptr<Statement> block;
 
     Function();
     void print();

@@ -8,6 +8,7 @@ std::string labelMaker();
 #define FUNCNAME(X) " .globl " + X + "\n" + TAG(X)
 
 #define ADDL(X,Y)    " addl\t" #X ", " #Y "\n"
+#define ADDL2(X,Y)   " addl\t" "$" + std::to_string(X) + ", " #Y "\n"
 #define CDQ()        " cdq\n"
 #define CMPL(X,Y)    " cmpl\t" #X ", " #Y "\n"
 #define IDIVL(X)     " idivl\t" #X "\n"

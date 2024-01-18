@@ -35,10 +35,10 @@ class Declare : public Statement
   public:
     std::string name;
     std::shared_ptr<Expression> exp;
-    std::shared_ptr<VariableMap> vmap;
+    VariableStack vmap;
 
-    Declare(std::shared_ptr<VariableMap> _vmap, std::string _name);
-    Declare(std::shared_ptr<VariableMap> _vmap, std::string _name, std::shared_ptr<Expression> _exp);
+    Declare(VariableStack _vmap, std::string _name);
+    Declare(VariableStack _vmap, std::string _name, std::shared_ptr<Expression> _exp);
 
     void print();
     void assemble(std::vector<std::string>& insts);
@@ -69,6 +69,17 @@ class If : public Statement
     If(std::shared_ptr<Expression> _cond,
        std::shared_ptr<Statement> _if)
     : condition(_cond), ifStmt(_if) {}
+
+    void assemble(std::vector<std::string>& insts);
+};
+
+class Compound : public Statement
+{
+  private:
+  public:
+    VariableStack vmap;
+    std::vector<std::shared_ptr<Statement>> statements;
+    Compound() {}
 
     void assemble(std::vector<std::string>& insts);
 };
