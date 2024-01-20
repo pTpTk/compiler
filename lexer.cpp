@@ -1,5 +1,11 @@
 #include "lexer.h"
 
+#define KEYWORD(X, Y) if(*idfrPtr == X) { \
+                        tokens.emplace_back(Y); \
+                        delete idfrPtr; \
+                        break; \
+                    }
+
 void Lexer::run(char* filename) {
     FILE* fd = fopen(filename, "r");
 
@@ -118,29 +124,10 @@ void Lexer::run(char* filename) {
                     }
                     std::string* idfrPtr = new std::string(idfrStart, idfrLen);
                     
-                    if(*idfrPtr == "int") {
-                        tokens.emplace_back(Type::keyword_int);
-                        delete idfrPtr;
-                        break;
-                    }
-
-                    if(*idfrPtr == "return") {
-                        tokens.emplace_back(Type::keyword_return);
-                        delete idfrPtr;
-                        break;
-                    }
-
-                    if(*idfrPtr == "if") {
-                        tokens.emplace_back(Type::keyword_if);
-                        delete idfrPtr;
-                        break;
-                    }
-
-                    if(*idfrPtr == "else") {
-                        tokens.emplace_back(Type::keyword_else);
-                        delete idfrPtr;
-                        break;
-                    }
+                    KEYWORD("int", Type::keyword_int);
+                    KEYWORD("return", Type::keyword_return);
+                    KEYWORD("if", Type::keyword_if);
+                    KEYWORD("else", Type::keyword_else);
 
                     tokens.emplace_back(Type::identifier, (long)idfrPtr);
                     break;
