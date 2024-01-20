@@ -35,6 +35,11 @@ enum class Type
     keyword_return,
     keyword_if,
     keyword_else,
+    keyword_for,
+    keyword_do,
+    keyword_while,
+    keyword_break,
+    keyword_continue,
 
     identifier,
     integer
@@ -129,17 +134,14 @@ class Token
                 printf("?");
                 break;
             case Type::keyword_int:
-                printf("int");
-                break;
             case Type::keyword_return:
-                printf("return");
-                break;
             case Type::keyword_if:
-                printf("if");
-                break;
             case Type::keyword_else:
-                printf("else");
-                break;
+            case Type::keyword_for:
+            case Type::keyword_do:
+            case Type::keyword_while:
+            case Type::keyword_break:
+            case Type::keyword_continue:
             case Type::identifier:
             {
                 std::string* strPtr = (std::string*)val;

@@ -1,8 +1,7 @@
 #include "lexer.h"
 
 #define KEYWORD(X, Y) if(*idfrPtr == X) { \
-                        tokens.emplace_back(Y); \
-                        delete idfrPtr; \
+                        tokens.emplace_back(Y, (long)idfrPtr); \
                         break; \
                     }
 
@@ -128,6 +127,11 @@ void Lexer::run(char* filename) {
                     KEYWORD("return", Type::keyword_return);
                     KEYWORD("if", Type::keyword_if);
                     KEYWORD("else", Type::keyword_else);
+                    KEYWORD("for", Type::keyword_for);
+                    KEYWORD("do", Type::keyword_do);
+                    KEYWORD("while", Type::keyword_while);
+                    KEYWORD("break", Type::keyword_break);
+                    KEYWORD("continue", Type::keyword_continue);
 
                     tokens.emplace_back(Type::identifier, (long)idfrPtr);
                     break;
