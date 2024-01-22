@@ -104,6 +104,80 @@ Compound::assemble(std::vector<std::string>& insts) {
 }
 
 void
+While::assemble(std::vector<std::string>& insts) {
+    std::string start = labelMaker();
+    std::string end = labelMaker();
+
+    labelPair->set(start, end);
+
+    insts.emplace_back(TAG(start));
+    condition->assemble(insts);
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JE(end));
+    body->assemble(insts);
+    insts.emplace_back(JMP(start));
+    insts.emplace_back(TAG(end));
+
+    labelPair->clear();
+}
+
+void
+Do::assemble(std::vector<std::string>& insts) {
+    std::string start = labelMaker();
+    std::string end = labelMaker();
+
+    labelPair->set(start, end);
+
+    insts.emplace_back(TAG(start));
+    body->assemble(insts);
+    condition->assemble(insts);
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JE(end));
+    insts.emplace_back(JMP(start));
+    insts.emplace_back(TAG(end));
+
+    labelPair->clear();
+}
+
+void
+For::assemble(std::vector<std::string>& insts) {
+    std::string cond = labelMaker();
+    std::string end = labelMaker();
+
+    labelPair->set(cond, end);
+
+    initialStmt->assemble(insts);
+    insts.emplace_back(TAG(cond));
+    condition->assemble(insts);
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JE(end));
+    body->assemble(insts);
+    postExpr->assemble(insts);
+    insts.emplace_back(JMP(cond));
+    insts.emplace_back(TAG(end));
+
+    labelPair->clear();
+
+    int s = vmap.size();
+    if(s)
+        insts.emplace_back(ADDL2(s, %esp));
+}
+
+void
+Break::assemble(std::vector<std::string>& insts) {
+    assert(!labelPair->empty());
+
+    insts.emplace_back(JMP(labelPair->second));
+}
+
+void
+Continue::assemble(std::vector<std::string>& insts) {
+    assert(!labelPair->empty());
+
+    insts.emplace_back(JMP(labelPair->first));
+}
+
+void
 Constant::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(MOVL2(val, %eax));
 }

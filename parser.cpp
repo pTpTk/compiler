@@ -121,9 +121,9 @@ Parser::parseStmt(std::list<Token>& tokens) {
             tokens.pop_front();
             TOKEN_EXPECT(Type::symbol_parenthesis_l);
             tokens.pop_front();
+            // vmap for init
             prog.vmap.alloc();
             auto initialStmt = parseBlockItem(tokens);
-            prog.vmap.dealloc();
             auto condition = parseBlockItem(tokens);
             if(condition->isEmpty())
                 condition = std::make_shared<ExprStmt>(std::make_shared<Constant>(1));
@@ -133,8 +133,11 @@ Parser::parseStmt(std::list<Token>& tokens) {
             TOKEN_EXPECT(Type::symbol_parenthesis_r);
             tokens.pop_front();
             auto body = parseBlock(tokens);
+            // vmap for init should be present throughout the for node
+            prog.vmap.dealloc();
 
-            ret = std::make_shared<For>(initialStmt, condition, postExpr, body);
+            ret = std::make_shared<For>(prog.vmap, initialStmt, condition, postExpr, body);
+            ret->setLabelPair(&prog.labelPair);
             break;
         }
         case Type::keyword_while:
@@ -146,6 +149,7 @@ Parser::parseStmt(std::list<Token>& tokens) {
             auto body = parseBlock(tokens);
 
             ret = std::make_shared<While>(condition, body);
+            ret->setLabelPair(&prog.labelPair);
             break;
         }
         case Type::keyword_do:
@@ -159,16 +163,19 @@ Parser::parseStmt(std::list<Token>& tokens) {
             TOKEN_POP(Type::symbol_semicolon);
 
             ret = std::make_shared<Do>(body, condition);
+            ret->setLabelPair(&prog.labelPair);
             break;
         }
         case Type::keyword_break:
             tokens.pop_front();
             ret = std::make_shared<Break>();
+            ret->setLabelPair(&prog.labelPair);
             TOKEN_POP(Type::symbol_semicolon);
             break;
         case Type::keyword_continue:
             tokens.pop_front();
             ret = std::make_shared<Continue>();
+            ret->setLabelPair(&prog.labelPair);
             TOKEN_POP(Type::symbol_semicolon);
             break;
         case Type::symbol_semicolon:

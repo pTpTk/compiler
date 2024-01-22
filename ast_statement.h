@@ -17,6 +17,7 @@ class Statement
     virtual void assemble(std::vector<std::string>& insts) {}
     virtual void print() {}
     virtual bool isEmpty() { return false; }
+    virtual void setLabelPair(LabelPair* lp) {}
 };
 
 class Return : public Statement
@@ -94,10 +95,17 @@ class For : public Statement
     std::shared_ptr<Statement> condition;
     std::shared_ptr<Expression> postExpr;
     std::shared_ptr<Statement> body;
+    VariableStack vmap;
 
-    For(std::shared_ptr<Statement> _is, std::shared_ptr<Statement> _co,
+    For(VariableStack _vmap,
+        std::shared_ptr<Statement> _is, std::shared_ptr<Statement> _co,
         std::shared_ptr<Expression> _pe, std::shared_ptr<Statement> _bo)
-    : initialStmt(_is), condition(_co), postExpr(_pe), body(_bo) {}
+    : initialStmt(_is), condition(_co), postExpr(_pe), body(_bo), vmap(_vmap) {}
+    
+    void assemble(std::vector<std::string>& insts);
+
+    LabelPair* labelPair;
+    void setLabelPair(LabelPair* lp) { labelPair = lp; }
 };
 
 class While : public Statement
@@ -109,6 +117,11 @@ class While : public Statement
     While(std::shared_ptr<Expression> _cond,
           std::shared_ptr<Statement> _bo)
     : condition(_cond), body(_bo) {}
+
+    void assemble(std::vector<std::string>& insts);
+
+    LabelPair* labelPair;
+    void setLabelPair(LabelPair* lp) { labelPair = lp; }
 };
 
 class Do : public Statement
@@ -120,14 +133,27 @@ class Do : public Statement
     Do(std::shared_ptr<Statement> _bo, 
        std::shared_ptr<Expression> _cond)
     : condition(_cond), body(_bo) {}
+
+    void assemble(std::vector<std::string>& insts);
+
+    LabelPair* labelPair;
+    void setLabelPair(LabelPair* lp) { labelPair = lp; }
 };
 
 class Break : public Statement
 {
+  public:
+    void assemble(std::vector<std::string>& insts);
 
+    LabelPair* labelPair;
+    void setLabelPair(LabelPair* lp) { labelPair = lp; }
 };
 
 class Continue : public Statement
 {
-  
+  public:
+    void assemble(std::vector<std::string>& insts);
+
+    LabelPair* labelPair;
+    void setLabelPair(LabelPair* lp) { labelPair = lp; }
 };
