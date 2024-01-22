@@ -22,6 +22,11 @@ if(tokens.front().type != T) { \
 } \
 }
 
+#define TOKEN_POP(T) { \
+TOKEN_EXPECT(T); \
+tokens.pop_front(); \
+}
+
 class Parser
 {
   private:

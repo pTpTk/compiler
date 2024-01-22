@@ -16,6 +16,7 @@ class Statement
   public:
     virtual void assemble(std::vector<std::string>& insts) {}
     virtual void print() {}
+    virtual bool isEmpty() { return false; }
 };
 
 class Return : public Statement
@@ -48,10 +49,12 @@ class ExprStmt : public Statement
 {
   public:
     std::shared_ptr<Expression> exp;
+    ExprStmt() {}
     ExprStmt(std::shared_ptr<Expression> _exp)
     : exp(_exp) {}
 
     void assemble(std::vector<std::string>& insts);
+    bool isEmpty() { return !exp.get(); }
 };
 
 class If : public Statement
@@ -82,4 +85,49 @@ class Compound : public Statement
     Compound() {}
 
     void assemble(std::vector<std::string>& insts);
+};
+
+class For : public Statement
+{
+  public:
+    std::shared_ptr<Statement> initialStmt;
+    std::shared_ptr<Statement> condition;
+    std::shared_ptr<Expression> postExpr;
+    std::shared_ptr<Statement> body;
+
+    For(std::shared_ptr<Statement> _is, std::shared_ptr<Statement> _co,
+        std::shared_ptr<Expression> _pe, std::shared_ptr<Statement> _bo)
+    : initialStmt(_is), condition(_co), postExpr(_pe), body(_bo) {}
+};
+
+class While : public Statement
+{
+  public:
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<Statement> body;
+
+    While(std::shared_ptr<Expression> _cond,
+          std::shared_ptr<Statement> _bo)
+    : condition(_cond), body(_bo) {}
+};
+
+class Do : public Statement
+{
+  public:
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<Statement> body;
+
+    Do(std::shared_ptr<Statement> _bo, 
+       std::shared_ptr<Expression> _cond)
+    : condition(_cond), body(_bo) {}
+};
+
+class Break : public Statement
+{
+
+};
+
+class Continue : public Statement
+{
+  
 };

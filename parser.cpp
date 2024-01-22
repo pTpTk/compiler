@@ -12,19 +12,16 @@ Parser::parseFunc(std::list<Token>& tokens) {
 
     std::shared_ptr<Function> ret(new Function());
 
-    TOKEN_EXPECT(Type::keyword_int);
+    TOKEN_POP(Type::keyword_int);
     ret->returnType = Type::keyword_int;
-    tokens.pop_front();
     
     TOKEN_EXPECT(Type::identifier);
     ret->name = *((std::string*)tokens.front().val);
     tokens.pop_front();
 
-    TOKEN_EXPECT(Type::symbol_parenthesis_l);
-    tokens.pop_front();
+    TOKEN_POP(Type::symbol_parenthesis_l);
 
-    TOKEN_EXPECT(Type::symbol_parenthesis_r);
-    tokens.pop_front();
+    TOKEN_POP(Type::symbol_parenthesis_r);
 
     ret->block = parseBlock(tokens);
 
@@ -35,12 +32,14 @@ std::shared_ptr<Statement>
 Parser::parseBlock(std::list<Token>& tokens) {
     DEBUG();
 
+    if(tokens.front().type != Type::symbol_brace_l)
+        return parseBlockItem(tokens);
+
     std::shared_ptr<Compound> ret(new Compound());
     prog.vmap.alloc();
     ret->vmap = prog.vmap;
 
-    TOKEN_EXPECT(Type::symbol_brace_l);
-    tokens.pop_front();
+    TOKEN_POP(Type::symbol_brace_l);
 
     auto tokenType = tokens.front().type;
     while(tokenType != Type::symbol_brace_r) {
@@ -52,8 +51,7 @@ Parser::parseBlock(std::list<Token>& tokens) {
         tokenType = tokens.front().type;
     }
 
-    TOKEN_EXPECT(Type::symbol_brace_r);
-    tokens.pop_front();
+    TOKEN_POP(Type::symbol_brace_r);
 
     prog.vmap.dealloc();
 
@@ -76,12 +74,10 @@ Parser::parseBlockItem(std::list<Token>& tokens) {
         if(tokens.front().type == Type::symbol_semicolon)
             ret = std::make_shared<Declare>(prog.vmap, varName);
         else {
-            TOKEN_EXPECT(Type::symbol_assign);
-            tokens.pop_front();
+            TOKEN_POP(Type::symbol_assign);
             ret = std::make_shared<Declare>(prog.vmap, varName, parseExpr(tokens));
         }
-        TOKEN_EXPECT(Type::symbol_semicolon);
-        tokens.pop_front();
+        TOKEN_POP(Type::symbol_semicolon);
         return ret;
     }
 
@@ -100,6 +96,7 @@ Parser::parseStmt(std::list<Token>& tokens) {
         case Type::keyword_return:
             tokens.pop_front();
             ret = std::make_shared<Return>(parseExpr(tokens));
+            TOKEN_POP(Type::symbol_semicolon);
             break;
         case Type::keyword_if:
         {
@@ -117,16 +114,76 @@ Parser::parseStmt(std::list<Token>& tokens) {
             } else {
                 ret = std::make_shared<If>(condition, ifStmt);
             }
-            return ret;
+            break;
+        }
+        case Type::keyword_for:
+        {
+            tokens.pop_front();
+            TOKEN_EXPECT(Type::symbol_parenthesis_l);
+            tokens.pop_front();
+            prog.vmap.alloc();
+            auto initialStmt = parseBlockItem(tokens);
+            prog.vmap.dealloc();
+            auto condition = parseBlockItem(tokens);
+            if(condition->isEmpty())
+                condition = std::make_shared<ExprStmt>(std::make_shared<Constant>(1));
+            auto postExpr = std::make_shared<Expression>();
+            if(tokens.front().type != Type::symbol_parenthesis_r)
+                postExpr = parseExpr(tokens);
+            TOKEN_EXPECT(Type::symbol_parenthesis_r);
+            tokens.pop_front();
+            auto body = parseBlock(tokens);
+
+            ret = std::make_shared<For>(initialStmt, condition, postExpr, body);
+            break;
+        }
+        case Type::keyword_while:
+        {
+            tokens.pop_front();
+            TOKEN_POP(Type::symbol_parenthesis_l);
+            auto condition = parseExpr(tokens);
+            TOKEN_POP(Type::symbol_parenthesis_r);
+            auto body = parseBlock(tokens);
+
+            ret = std::make_shared<While>(condition, body);
+            break;
+        }
+        case Type::keyword_do:
+        {
+            tokens.pop_front();
+            auto body = parseBlock(tokens);
+            TOKEN_POP(Type::keyword_while);
+            TOKEN_POP(Type::symbol_parenthesis_l);
+            auto condition = parseExpr(tokens);
+            TOKEN_POP(Type::symbol_parenthesis_r);
+            TOKEN_POP(Type::symbol_semicolon);
+
+            ret = std::make_shared<Do>(body, condition);
+            break;
+        }
+        case Type::keyword_break:
+            tokens.pop_front();
+            ret = std::make_shared<Break>();
+            TOKEN_POP(Type::symbol_semicolon);
+            break;
+        case Type::keyword_continue:
+            tokens.pop_front();
+            ret = std::make_shared<Continue>();
+            TOKEN_POP(Type::symbol_semicolon);
+            break;
+        case Type::symbol_semicolon:
+        {
+            ret = std::make_shared<ExprStmt>();
+            TOKEN_POP(Type::symbol_semicolon);
+            break;
         }
         default:
         {
             ret = std::make_shared<ExprStmt>(parseExpr(tokens));
+            TOKEN_POP(Type::symbol_semicolon);
+            break;
         }
     }    
-
-    TOKEN_EXPECT(Type::symbol_semicolon);
-    tokens.pop_front();
 
     return ret;
 }

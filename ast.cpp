@@ -62,7 +62,8 @@ Declare::assemble(std::vector<std::string>& insts) {
 
 void
 ExprStmt::assemble(std::vector<std::string>& insts) {
-    exp->assemble(insts);
+    if(exp.get())
+        exp->assemble(insts);
 }
 
 void
