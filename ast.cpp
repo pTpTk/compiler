@@ -142,9 +142,10 @@ Do::assemble(std::vector<std::string>& insts) {
 void
 For::assemble(std::vector<std::string>& insts) {
     std::string cond = labelMaker();
+    std::string post = labelMaker();
     std::string end = labelMaker();
 
-    labelPair->set(cond, end);
+    labelPair->set(post, end);
 
     initialStmt->assemble(insts);
     insts.emplace_back(TAG(cond));
@@ -152,6 +153,7 @@ For::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(CMPL($0, %eax));
     insts.emplace_back(JE(end));
     body->assemble(insts);
+    insts.emplace_back(TAG(post));
     postExpr->assemble(insts);
     insts.emplace_back(JMP(cond));
     insts.emplace_back(TAG(end));
