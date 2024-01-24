@@ -133,11 +133,12 @@ Parser::parseStmt(std::list<Token>& tokens) {
             TOKEN_EXPECT(Type::symbol_parenthesis_r);
             tokens.pop_front();
             auto body = parseBlock(tokens);
-            // vmap for init should be present throughout the for node
-            prog.vmap.dealloc();
 
             ret = std::make_shared<For>(prog.vmap, initialStmt, condition, postExpr, body);
             ret->setLabelPair(&prog.labelPair);
+
+            // vmap for init should be present throughout the for node
+            prog.vmap.dealloc();
             break;
         }
         case Type::keyword_while:
