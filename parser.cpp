@@ -121,24 +121,60 @@ Parser::parseStmt(std::list<Token>& tokens) {
             tokens.pop_front();
             TOKEN_EXPECT(Type::symbol_parenthesis_l);
             tokens.pop_front();
-            // vmap for init
-            prog.vmap.alloc();
-            auto initialStmt = parseBlockItem(tokens);
-            auto condition = parseBlockItem(tokens);
-            if(condition->isEmpty())
-                condition = std::make_shared<ExprStmt>(std::make_shared<Constant>(1));
-            auto postExpr = std::make_shared<Expression>();
-            if(tokens.front().type != Type::symbol_parenthesis_r)
-                postExpr = parseExpr(tokens);
-            TOKEN_EXPECT(Type::symbol_parenthesis_r);
-            tokens.pop_front();
-            auto body = parseBlock(tokens);
 
-            ret = std::make_shared<For>(prog.vmap, initialStmt, condition, postExpr, body);
-            ret->setLabelPair(&prog.labelPair);
+            // ForDecl
+            if(tokens.front().type == Type::keyword_int) {
+                // vmap for init
+                prog.vmap.alloc();
 
-            // vmap for init should be present throughout the for node
-            prog.vmap.dealloc();
+                auto initialDecl = parseBlockItem(tokens);
+
+                std::shared_ptr<Expression> condition = std::make_shared<Constant>(1);
+                if(tokens.front().type != Type::symbol_semicolon)
+                    condition = parseExpr(tokens);
+                
+                TOKEN_POP(Type::symbol_semicolon);
+
+                auto postExpr = std::make_shared<Expression>();
+                if(tokens.front().type != Type::symbol_parenthesis_r)
+                    postExpr = parseExpr(tokens);
+
+                TOKEN_POP(Type::symbol_parenthesis_r);
+
+                auto body = parseBlock(tokens);
+
+                ret = std::make_shared<ForDecl>(prog.vmap, initialDecl, condition, postExpr, body);
+                ret->setLabelPair(&prog.labelPair);
+
+                // vmap for init should be present throughout the for node
+                prog.vmap.dealloc();
+
+            }
+            // For
+            else {
+                auto initialExpr = std::make_shared<Expression>();
+                if(tokens.front().type != Type::symbol_semicolon)
+                    initialExpr = parseExpr(tokens);
+
+                TOKEN_POP(Type::symbol_semicolon);
+
+                std::shared_ptr<Expression> condition = std::make_shared<Constant>(1);
+                if(tokens.front().type != Type::symbol_semicolon)
+                    condition = parseExpr(tokens);
+                
+                TOKEN_POP(Type::symbol_semicolon);
+
+                auto postExpr = std::make_shared<Expression>();
+                if(tokens.front().type != Type::symbol_parenthesis_r)
+                    postExpr = parseExpr(tokens);
+
+                TOKEN_POP(Type::symbol_parenthesis_r);
+
+                auto body = parseBlock(tokens);
+
+                ret = std::make_shared<For>(initialExpr, condition, postExpr, body);
+                ret->setLabelPair(&prog.labelPair);
+            }
             break;
         }
         case Type::keyword_while:

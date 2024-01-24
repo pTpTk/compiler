@@ -91,16 +91,34 @@ class Compound : public Statement
 class For : public Statement
 {
   public:
-    std::shared_ptr<Statement> initialStmt;
-    std::shared_ptr<Statement> condition;
+    std::shared_ptr<Expression> initialExpr;
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<Expression> postExpr;
+    std::shared_ptr<Statement> body;
+
+    For(std::shared_ptr<Expression> _ie, std::shared_ptr<Expression> _co,
+        std::shared_ptr<Expression> _pe, std::shared_ptr<Statement> _bo)
+    : initialExpr(_ie), condition(_co), postExpr(_pe), body(_bo) {}
+    
+    void assemble(std::vector<std::string>& insts);
+
+    LabelPair* labelPair;
+    void setLabelPair(LabelPair* lp) { labelPair = lp; }
+};
+
+class ForDecl : public Statement
+{
+  public:
+    std::shared_ptr<Statement> initialDecl;
+    std::shared_ptr<Expression> condition;
     std::shared_ptr<Expression> postExpr;
     std::shared_ptr<Statement> body;
     VariableStack vmap;
 
-    For(VariableStack _vmap,
-        std::shared_ptr<Statement> _is, std::shared_ptr<Statement> _co,
+    ForDecl(VariableStack _vmap,
+        std::shared_ptr<Statement> _id, std::shared_ptr<Expression> _co,
         std::shared_ptr<Expression> _pe, std::shared_ptr<Statement> _bo)
-    : initialStmt(_is), condition(_co), postExpr(_pe), body(_bo), vmap(_vmap) {}
+    : initialDecl(_id), condition(_co), postExpr(_pe), body(_bo), vmap(_vmap) {}
     
     void assemble(std::vector<std::string>& insts);
 

@@ -147,7 +147,29 @@ For::assemble(std::vector<std::string>& insts) {
 
     labelPair->set(post, end);
 
-    initialStmt->assemble(insts);
+    initialExpr->assemble(insts);
+    insts.emplace_back(TAG(cond));
+    condition->assemble(insts);
+    insts.emplace_back(CMPL($0, %eax));
+    insts.emplace_back(JE(end));
+    body->assemble(insts);
+    insts.emplace_back(TAG(post));
+    postExpr->assemble(insts);
+    insts.emplace_back(JMP(cond));
+    insts.emplace_back(TAG(end));
+
+    labelPair->clear();
+}
+
+void
+ForDecl::assemble(std::vector<std::string>& insts) {
+    std::string cond = labelMaker();
+    std::string post = labelMaker();
+    std::string end = labelMaker();
+
+    labelPair->set(post, end);
+
+    initialDecl->assemble(insts);
     insts.emplace_back(TAG(cond));
     condition->assemble(insts);
     insts.emplace_back(CMPL($0, %eax));
