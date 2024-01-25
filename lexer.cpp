@@ -106,6 +106,8 @@ void Lexer::run(char* filename) {
                     PUSH_TOKEN(Type::symbol_colon);
                 case '?':
                     PUSH_TOKEN(Type::symbol_question_mark);
+                case ',':
+                    PUSH_TOKEN(Type::symbol_comma);
 
                 // identifier
                 case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i':

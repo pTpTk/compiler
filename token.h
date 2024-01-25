@@ -30,6 +30,7 @@ enum class Type
     symbol_greater_equal,
     symbol_colon,
     symbol_question_mark,
+    symbol_comma,
 
     keyword_int,
     keyword_return,
@@ -132,6 +133,9 @@ class Token
                 break;
             case Type::symbol_question_mark:
                 printf("?");
+                break;
+            case Type::symbol_comma:
+                printf(",");
                 break;
             case Type::keyword_int:
             case Type::keyword_return:
