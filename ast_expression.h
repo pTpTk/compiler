@@ -251,3 +251,12 @@ class Conditional : public Expression
 
     void assemble(std::vector<std::string>& insts);
 };
+
+class FunctionCall : public Expression
+{
+  public:
+    std::string name;
+    std::vector<std::shared_ptr<Expression>> params;
+
+    FunctionCall(std::string n) : name(n) {}
+};

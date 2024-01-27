@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     Parser parser;
     parser.run(lexer.tokens);
 
-    parser.prog.function->print();
+    // parser.prog.function->print();
     // parser.prog.function->statement->print();
 
     Assembler assembler;

@@ -2,5 +2,6 @@
 
 void
 Assembler::run(Program& prog) {
-    prog.function->assemble(output);
+    for(auto function : prog.functions)
+        function->assemble(output);
 }

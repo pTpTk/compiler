@@ -8,6 +8,7 @@
 #include "token.h"
 #include "asm.h"
 #include "variable_map.h"
+#include "declare_map.h"
 #include "label.h"
 #include "ast_function.h"
 #include "ast_statement.h"
@@ -16,7 +17,8 @@
 class Program
 {
   public:
-    std::shared_ptr<Function> function;
+    std::vector<std::shared_ptr<Function>> functions;
     VariableStack vmap;
     LabelPair labelPair;
+    DeclareMap fmap;
 };

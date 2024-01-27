@@ -2,8 +2,15 @@
 
 void
 Parser::run(std::list<Token>& tokens) {
+    DEBUG();
+
     assert(!tokens.empty());
-    prog.function = parseFunc(tokens);
+
+    while(!tokens.empty()) {
+        if(auto funcPtr = parseFunc(tokens)) {
+            prog.functions.emplace_back(funcPtr);
+        }
+    }
 }
 
 std::shared_ptr<Function>
@@ -21,11 +28,37 @@ Parser::parseFunc(std::list<Token>& tokens) {
 
     TOKEN_POP(Type::symbol_parenthesis_l);
 
+    if(tokens.front().type != Type::symbol_parenthesis_r)
+    while(true) {
+        TOKEN_POP(Type::keyword_int);
+
+        TOKEN_EXPECT(Type::identifier);
+        ret->params.push_back(*((std::string*)tokens.front().val));
+        tokens.pop_front();
+
+        if(tokens.front().type == Type::symbol_parenthesis_r) break;
+
+        TOKEN_POP(Type::symbol_comma);
+    }
+
     TOKEN_POP(Type::symbol_parenthesis_r);
 
-    ret->block = parseBlock(tokens);
+    // function declaration
+    if(tokens.front().type == Type::symbol_semicolon) {
+        tokens.pop_front();
+        
+        prog.fmap.pushDeclaration(ret->name, ret->params.size());
+        return std::shared_ptr<Function>();
+    }
+    else {
+        prog.fmap.pushDef(ret->name, ret->params.size());
+        
+        std::swap(ret->vmap, prog.vmap);
+        ret->block = parseBlock(tokens);
+        std::swap(ret->vmap, prog.vmap);
 
-    return ret;
+        return ret;
+    }
 }
 
 std::shared_ptr<Statement>
@@ -538,7 +571,29 @@ Parser::parseFactor(std::list<Token>& tokens) {
     if(tokens.front().type == Type::identifier) {
         auto name = *(std::string*) tokens.front().val;
         tokens.pop_front();
-        ret = std::make_shared<Variable>(prog.vmap, name);
+        if(tokens.front().type != Type::symbol_parenthesis_l) {
+            ret = std::make_shared<Variable>(prog.vmap, name);
+        }
+        else {
+            auto funcCall = std::make_shared<FunctionCall>(name);
+
+            TOKEN_POP(Type::symbol_parenthesis_l);
+
+            if(tokens.front().type != Type::symbol_parenthesis_r)
+            while(true) {
+                funcCall->params.push_back(parseExpr(tokens));
+
+                if(tokens.front().type == Type::symbol_parenthesis_r) break;
+
+                TOKEN_POP(Type::symbol_comma);
+            }
+
+            TOKEN_POP(Type::symbol_parenthesis_r);
+
+            prog.fmap.validateCall(name, funcCall->params.size());
+
+            ret = funcCall;
+        }
         return ret;
     }
 
