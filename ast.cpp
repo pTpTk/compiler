@@ -22,6 +22,18 @@ Function::assemble(std::vector<std::string>& insts) {
         insts.emplace_back(RET());
     }
 }
+
+void
+Function::declare(Program& prog) {
+    prog.fmap.pushDeclaration(name, params.size());
+}
+
+void
+Function::define(Program& prog) {
+    vmap.alloc();
+    vmap.pushFuncParams(params);
+    prog.fmap.pushDef(name, params.size());
+}
 // Function
 
 // Return

@@ -259,4 +259,6 @@ class FunctionCall : public Expression
     std::vector<std::shared_ptr<Expression>> params;
 
     FunctionCall(std::string n) : name(n) {}
+    
+    void assemble(std::vector<std::string>& insts);
 };

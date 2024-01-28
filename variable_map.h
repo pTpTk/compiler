@@ -6,6 +6,7 @@
 #include <cassert>
 #include <list>
 #include <memory>
+#include <vector>
 
 class VariableMap
 {
@@ -23,6 +24,17 @@ class VariableMap
 
         vmap[name] = curIndex;
         curIndex -= 4;
+    }
+
+    void pushFuncParams(std::vector<std::string>& params) {
+        assert(vmap.empty());
+
+        int index = 8;
+
+        for(auto& p : params) {
+            vmap[p] = index;
+            index += 4;
+        }
     }
 
     int lookup(std::string name) {
@@ -71,7 +83,13 @@ class VariableStack
     }
 
     void push(std::string name) {
+        assert(currMap);
         currMap->push(name);
+    }
+
+    void pushFuncParams(std::vector<std::string>& params) {
+        assert(currMap);
+        currMap->pushFuncParams(params);
     }
 
     int lookup(std::string name) {

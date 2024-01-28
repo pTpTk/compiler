@@ -10,6 +10,7 @@
 
 class Instruction;
 class Statement;
+class Program;
 
 class Function
 {
@@ -23,4 +24,6 @@ class Function
     Function();
     void print();
     void assemble(std::vector<std::string>& insts);
+    void declare(Program&);
+    void define(Program&);
 };

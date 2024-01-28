@@ -46,12 +46,12 @@ Parser::parseFunc(std::list<Token>& tokens) {
     // function declaration
     if(tokens.front().type == Type::symbol_semicolon) {
         tokens.pop_front();
-        
-        prog.fmap.pushDeclaration(ret->name, ret->params.size());
+
+        ret->declare(prog);
         return std::shared_ptr<Function>();
     }
     else {
-        prog.fmap.pushDef(ret->name, ret->params.size());
+        ret->define(prog);
         
         std::swap(ret->vmap, prog.vmap);
         ret->block = parseBlock(tokens);
