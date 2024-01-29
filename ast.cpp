@@ -250,9 +250,9 @@ Addition::assemble(std::vector<std::string>& insts) {
 
 void
 Subtraction::assemble(std::vector<std::string>& insts) {
-    expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
     expR->assemble(insts);
+    insts.emplace_back(PUSH(%eax));
+    expL->assemble(insts);
     insts.emplace_back(POP(%ecx));
     insts.emplace_back(SUBL(%ecx, %eax));
 }
@@ -403,4 +403,18 @@ Conditional::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(TAG(l3));
     e3->assemble(insts);
     insts.emplace_back(TAG(end));
+}
+
+void
+FunctionCall::assemble(std::vector<std::string>& insts) {
+    for(auto p = params.rbegin(); p < params.rend(); p++) {
+        (*p)->assemble(insts);
+        insts.emplace_back(PUSH(%eax));
+    }
+
+    insts.emplace_back(CALL(name));
+    
+    int offset = params.size();
+    offset <<= 2;
+    insts.emplace_back(ADDL2(offset, %esp));
 }
