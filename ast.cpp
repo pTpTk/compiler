@@ -11,14 +11,14 @@ Function::print() {
 void 
 Function::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(FUNCNAME(name));
-    insts.emplace_back(PUSH(%ebp));
-    insts.emplace_back(MOVL1(%esp, %ebp));
+    insts.emplace_back(PUSH(%rbp));
+    insts.emplace_back(MOVL1(%rsp, %rbp));
     block->assemble(insts);
     
     if(insts.back() != RET()) {
         insts.emplace_back(MOVL1($0, %eax));
-        insts.emplace_back(MOVL1(%ebp, %esp));
-        insts.emplace_back(POP(%ebp));
+        insts.emplace_back(MOVL1(%rbp, %rsp));
+        insts.emplace_back(POP(%rbp));
         insts.emplace_back(RET());
     }
 }
@@ -45,8 +45,8 @@ Return::print() {
 void
 Return::assemble(std::vector<std::string>& insts) {
     exp->assemble(insts);
-    insts.emplace_back(MOVL1(%ebp, %esp));
-    insts.emplace_back(POP(%ebp));
+    insts.emplace_back(MOVL1(%rbp, %rsp));
+    insts.emplace_back(POP(%rbp));
     insts.emplace_back(RET());
 }
 // Return
@@ -112,7 +112,7 @@ Compound::assemble(std::vector<std::string>& insts) {
 
     int s = vmap.size();
     if(s && !vmap.first())
-        insts.emplace_back(ADDL2(s, %esp));
+        insts.emplace_back(ADDL2(s, %rsp));
 }
 
 void
@@ -196,7 +196,7 @@ ForDecl::assemble(std::vector<std::string>& insts) {
 
     int s = vmap.size();
     if(s)
-        insts.emplace_back(ADDL2(s, %esp));
+        insts.emplace_back(ADDL2(s, %rsp));
 }
 
 void
@@ -381,13 +381,13 @@ void
 Assignment::assemble(std::vector<std::string>& insts) {
     int index = vmap.lookup(name);
     exp->assemble(insts);
-    insts.emplace_back(MOVL3(%eax, index, %ebp));
+    insts.emplace_back(MOVL3(%eax, index, %rbp));
 }
 
 void
 Variable::assemble(std::vector<std::string>& insts) {
     int index = vmap.lookup(name);
-    insts.emplace_back(MOVL4(index, %ebp, %eax));
+    insts.emplace_back(MOVL4(index, %rbp, %eax));
 }
 
 void
@@ -416,5 +416,5 @@ FunctionCall::assemble(std::vector<std::string>& insts) {
     
     int offset = params.size();
     offset <<= 2;
-    insts.emplace_back(ADDL2(offset, %esp));
+    insts.emplace_back(ADDL2(offset, %rsp));
 }

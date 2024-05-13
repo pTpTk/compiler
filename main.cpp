@@ -4,6 +4,7 @@
 #include <cstring>
 #include <string>
 #include <cassert>
+#include <fstream>
 #include "lexer.h"
 #include "parser.h"
 #include "assembler.h"
@@ -14,7 +15,7 @@ std::string labelMaker() {
 }
 
 int main(int argc, char** argv) {
-    if (argc !=2) {
+    if (argc != 3) {
         std::cerr << "Wrong input format!!\n";
         return 1;
     }
@@ -32,14 +33,13 @@ int main(int argc, char** argv) {
     Parser parser;
     parser.run(lexer.tokens);
 
-    // parser.prog.function->print();
-    // parser.prog.function->statement->print();
-
     Assembler assembler;
     assembler.run(parser.prog);
 
+    std::ofstream ofs(argv[2]);
+
     for(auto& v : assembler.output) {
-        std::cout << v;
+        ofs << v;
     }
 
     return 0;

@@ -1,4 +1,5 @@
 compiler
-cint
+compile
 .vscode
 test
+output.s
