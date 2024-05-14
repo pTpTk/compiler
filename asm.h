@@ -9,6 +9,7 @@ std::string labelMaker();
 
 #define ADDL(X,Y)    " addl\t" #X ", " #Y "\n"
 #define ADDL2(X,Y)   " addl\t" "$" + std::to_string(X) + ", " #Y "\n"
+#define ADDQ2(X,Y)   " addq\t" "$" + std::to_string(X) + ", " #Y "\n"
 #define CALL(X)      " call\t" + X + "\n"
 #define CDQ()        " cdq\n"
 #define CMPL(X,Y)    " cmpl\t" #X ", " #Y "\n"
@@ -21,6 +22,7 @@ std::string labelMaker();
 #define MOVL2(X,Y)   " movl\t$" + std::to_string(X) + ", " #Y "\n"
 #define MOVL3(X,Y,Z) " movl\t" #X ", " + std::to_string(Y) + "(" #Z ")" "\n"
 #define MOVL4(X,Y,Z) " movl\t" + std::to_string(X) + "(" #Y ")" ", " #Z "\n"
+#define MOVQ(X,Y)    " movq\t" #X ", " #Y "\n"
 #define NEG(X)       " neg\t" #X "\n"
 #define NOT(X)       " not\t" #X "\n"
 #define POP(X)       " pop\t" #X "\n"

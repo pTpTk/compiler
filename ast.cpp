@@ -12,12 +12,12 @@ void
 Function::assemble(std::vector<std::string>& insts) {
     insts.emplace_back(FUNCNAME(name));
     insts.emplace_back(PUSH(%rbp));
-    insts.emplace_back(MOVL1(%rsp, %rbp));
+    insts.emplace_back(MOVQ(%rsp, %rbp));
     block->assemble(insts);
     
     if(insts.back() != RET()) {
         insts.emplace_back(MOVL1($0, %eax));
-        insts.emplace_back(MOVL1(%rbp, %rsp));
+        insts.emplace_back(MOVQ(%rbp, %rsp));
         insts.emplace_back(POP(%rbp));
         insts.emplace_back(RET());
     }
@@ -45,7 +45,7 @@ Return::print() {
 void
 Return::assemble(std::vector<std::string>& insts) {
     exp->assemble(insts);
-    insts.emplace_back(MOVL1(%rbp, %rsp));
+    insts.emplace_back(MOVQ(%rbp, %rsp));
     insts.emplace_back(POP(%rbp));
     insts.emplace_back(RET());
 }
@@ -68,7 +68,7 @@ Declare::assemble(std::vector<std::string>& insts) {
     if(exp.get() != nullptr) {
         exp->assemble(insts);
     }
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
 }
 // Declare
 
@@ -112,7 +112,7 @@ Compound::assemble(std::vector<std::string>& insts) {
 
     int s = vmap.size();
     if(s && !vmap.first())
-        insts.emplace_back(ADDL2(s, %rsp));
+        insts.emplace_back(ADDQ2(s, %rsp));
 }
 
 void
@@ -196,7 +196,7 @@ ForDecl::assemble(std::vector<std::string>& insts) {
 
     int s = vmap.size();
     if(s)
-        insts.emplace_back(ADDL2(s, %rsp));
+        insts.emplace_back(ADDQ2(s, %rsp));
 }
 
 void
@@ -242,36 +242,36 @@ LogicalNegation::assemble(std::vector<std::string>& insts) {
 void
 Addition::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(ADDL(%ecx, %eax));
 }
 
 void
 Subtraction::assemble(std::vector<std::string>& insts) {
     expR->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expL->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(SUBL(%ecx, %eax));
 }
 
 void 
 Multiplication::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(IMUL(%ecx, %eax));
 }
 
 void
 Division::assemble(std::vector<std::string>& insts) {
     expR->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expL->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CDQ());
     insts.emplace_back(IDIVL(%ecx));
 }
@@ -279,9 +279,9 @@ Division::assemble(std::vector<std::string>& insts) {
 void
 Less::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETL(%al));
@@ -290,9 +290,9 @@ Less::assemble(std::vector<std::string>& insts) {
 void
 Greater::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETG(%al));
@@ -301,9 +301,9 @@ Greater::assemble(std::vector<std::string>& insts) {
 void
 LessEqual::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETLE(%al));
@@ -312,9 +312,9 @@ LessEqual::assemble(std::vector<std::string>& insts) {
 void 
 GreaterEqual::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETGE(%al));
@@ -323,9 +323,9 @@ GreaterEqual::assemble(std::vector<std::string>& insts) {
 void 
 Equal::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETE(%al));
@@ -369,9 +369,9 @@ LogicalOr::assemble(std::vector<std::string>& insts) {
 void
 NotEqual::assemble(std::vector<std::string>& insts) {
     expL->assemble(insts);
-    insts.emplace_back(PUSH(%eax));
+    insts.emplace_back(PUSH(%rax));
     expR->assemble(insts);
-    insts.emplace_back(POP(%ecx));
+    insts.emplace_back(POP(%rcx));
     insts.emplace_back(CMPL(%eax, %ecx));
     insts.emplace_back(MOVL1($0, %eax));
     insts.emplace_back(SETNE(%al));
@@ -407,14 +407,35 @@ Conditional::assemble(std::vector<std::string>& insts) {
 
 void
 FunctionCall::assemble(std::vector<std::string>& insts) {
-    for(auto p = params.rbegin(); p < params.rend(); p++) {
-        (*p)->assemble(insts);
-        insts.emplace_back(PUSH(%eax));
+    int paramCount = params.size();
+    assert(paramCount < 5);
+    
+    switch(paramCount) {
+        case 4:
+        {
+            auto& p = params[3];
+            p->assemble(insts);
+            insts.emplace_back(MOVL1(%eax, %ecx));
+        }
+        case 3:
+        {
+            auto& p = params[2];
+            p->assemble(insts);
+            insts.emplace_back(MOVL1(%eax, %edx));
+        }
+        case 2:
+        {
+            auto& p = params[1];
+            p->assemble(insts);
+            insts.emplace_back(MOVL1(%eax, %esi));
+        }
+        case 1:
+        {
+            auto& p = params[0];
+            p->assemble(insts);
+            insts.emplace_back(MOVL1(%eax, %edi));
+        }
     }
 
     insts.emplace_back(CALL(name));
-    
-    int offset = params.size();
-    offset <<= 2;
-    insts.emplace_back(ADDL2(offset, %rsp));
 }
