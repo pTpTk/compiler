@@ -13,6 +13,7 @@ class VariableMap
   private:
     int curIndex;
     std::unordered_map<std::string, int> vmap;
+
   public:
     VariableMap(int index = -4) : curIndex(index) {}
 
@@ -24,17 +25,6 @@ class VariableMap
 
         vmap[name] = curIndex;
         curIndex -= 4;
-    }
-
-    void pushFuncParams(std::vector<std::string>& params) {
-        assert(vmap.empty());
-
-        int index = 8;
-
-        for(auto& p : params) {
-            vmap[p] = index;
-            index += 4;
-        }
     }
 
     int lookup(std::string name) {
@@ -61,6 +51,8 @@ class VariableStack
     std::list<std::shared_ptr<VariableMap>> prevMaps;
     std::shared_ptr<VariableMap> currMap;
 
+    std::vector<std::string> params;
+
     void alloc() {
         if(currMap.get() != nullptr) {
             prevMaps.push_front(currMap);
@@ -83,13 +75,32 @@ class VariableStack
     }
 
     void push(std::string name) {
+        if(lookupParams(name) != -1) {
+            std::cerr << "duplicated variable declaration " << name << std::endl;
+            assert(false);
+        }
+
         assert(currMap);
         currMap->push(name);
     }
 
-    void pushFuncParams(std::vector<std::string>& params) {
-        assert(currMap);
-        currMap->pushFuncParams(params);
+    void pushFuncParams(std::vector<std::string>& _params) {
+        assert(_params.size() < 5);
+
+        params = _params;
+    }
+
+    int lookupParams(std::string name) {
+        int i = 0;
+
+        for(auto p : params) {
+            if(name == p) {
+                return i;
+            }
+            i++;
+        }
+
+        return -1;
     }
 
     int lookup(std::string name) {

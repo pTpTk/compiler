@@ -386,8 +386,30 @@ Assignment::assemble(std::vector<std::string>& insts) {
 
 void
 Variable::assemble(std::vector<std::string>& insts) {
-    int index = vmap.lookup(name);
-    insts.emplace_back(MOVL4(index, %rbp, %eax));
+    int paramIndex = vmap.lookupParams(name);
+    
+    // variable is not a function parameter
+    if(paramIndex < 0) {
+        int index = vmap.lookup(name);
+        insts.emplace_back(MOVL4(index, %rbp, %eax));
+    }
+    // variable is a function parameter
+    else {
+        switch(paramIndex) {
+            case 3:
+                insts.emplace_back(MOVL1(%ecx, %eax));
+                break;
+            case 2:
+                insts.emplace_back(MOVL1(%edx, %eax));
+                break;
+            case 1:
+                insts.emplace_back(MOVL1(%esi, %eax));
+                break;
+            case 0:
+                insts.emplace_back(MOVL1(%edi, %eax));
+                break;
+        }
+    }
 }
 
 void
